@@ -1,74 +1,196 @@
+#!/usr/bin/env python3
+
 import time
 from datetime import datetime
+from pathlib import Path
 import os
 import subprocess
 import argparse
+from typing import Optional, Tuple
+import logging
 import bittensor as bt
+from dataclasses import dataclass
 
-# Initialize the subtensor connection
-sub = bt.Subtensor(network="finney")
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
 
-# Store the last price
-tao_last_price = None
+# Constants
+NETWORK = "finney"
+DEFAULT_SUBNET = 4
+DEFAULT_INTERVAL = 60 * 15  # 15 minutes in seconds
+DEFAULT_THRESHOLD = 3.0
+ALERT_SOUND_FILE = "alert.mp3"
 
-# Parse command-line arguments
-parser = argparse.ArgumentParser(description="Fetch TAO price every N minutes")
-parser.add_argument("--subnet", type=int, default=4, help="Subnet netuid (default: 4)")
-parser.add_argument("--interval", type=int, default=60*5, help="Interval in seconds (default: *)")
-parser.add_argument("--threshold", type=float, default=3., help="Percentage change threshold for highlighting (default: 3.0%)")
+# ANSI color codes
+RED = "\033[91m"
+BOLD = "\033[1m"
+RESET = "\033[0m"
 
-args = parser.parse_args()
-interval_seconds = args.interval#  * 60
+@dataclass
+class Config:
+    """Configuration class to store runtime parameters."""
+    subnet: int
+    interval: int
+    threshold: float
 
-def fetch_tao_price():
-    """Fetches the current TAO price from Bittensor."""
-    try:
-        subnet_info = sub.subnet(netuid=args.subnet)  # Adjust netuid if needed
-        return subnet_info.price.tao
-    except Exception as e:
-        print(f"Error fetching price: {e}")
-        return None
+class PriceMonitor:
+    def __init__(self, config: Config):
+        """Initialize the TAO price monitor.
+        
+        Args:
+            config: Configuration object containing runtime parameters
+        """
+        self.config = config
+        self.subtensor = bt.Subtensor(network=NETWORK)
+        self.last_price: Optional[float] = None
+        self._check_alert_sound_file()
 
-def fetch_subnet_details():
-    """Fetches subnet desc"""
-    try:
-        subnet_info = sub.subnet(netuid=args.subnet)  # Adjust netuid if needed
-        return f"{subnet_info.netuid} ({subnet_info.subnet_name})"
-    except Exception as e:
-        print(f"Error fetching subnet details: {e}")
-        return None        
+    def _check_alert_sound_file(self) -> None:
+        """Verify alert sound file exists."""
+        if not Path(ALERT_SOUND_FILE).exists():
+            logger.warning(f"Alert sound file {ALERT_SOUND_FILE} not found. Sound alerts will be disabled.")
 
-def play_alert_sound():
-    """Plays an alert sound on significant price change."""
-    try:
-        os.system("echo '\a'")  # Beep sound (may not work on all systems)
-        subprocess.run(["afplay", "alert.mp3"])
-    except Exception as e:
-        print(f"Error playing sound: {e}")
+    def fetch_tao_price(self) -> Optional[float]:
+        """Fetch the current TAO price from Bittensor.
+        
+        Returns:
+            Current TAO price or None if fetch fails
+        """
+        try:
+            subnet_info = self.subtensor.subnet(netuid=self.config.subnet)
+            return subnet_info.price.tao
+        except Exception as e:
+            logger.error(f"Error fetching price: {e}")
+            return None
 
-def formated_date_time():
-    return f"{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}"
+    def fetch_subnet_details(self) -> str:
+        """Fetch subnet details.
+        
+        Returns:
+            String containing subnet ID and name
+        """
+        try:
+            subnet_info = self.subtensor.subnet(netuid=self.config.subnet)
+            return f"{subnet_info.netuid} ({subnet_info.subnet_name})"
+        except Exception as e:
+            logger.error(f"Error fetching subnet details: {e}")
+            return f"Subnet {self.config.subnet}"
 
-def printLog(message, level="info"):
-    if level == "imp":
-        print(f"\033[91m{formated_date_time()} | {fetch_subnet_details()} {message}\033[0m")
-    else:
-        print(f"{formated_date_time()} | \033[1m{fetch_subnet_details()}\033[0m {message}")
-
-while True:
-    tao_current_price = fetch_tao_price()
-    
-    if tao_current_price is not None and tao_last_price is not None:
-        price_change = ((tao_current_price - tao_last_price) / tao_last_price) * 100
-        printLog(f"-> TAO Price: {tao_current_price:.6f} | Change in last {args.interval}s: {price_change:.6f}%")
-        # if abs(price_change) >= args.threshold:
-        if price_change >= args.threshold: 
-            printLog(f"| TAO Price: {tao_current_price:.6f} | Change in last {args.interval}s: {price_change:.6f}% (Significant Change!)", "imp")
-            play_alert_sound()
+    def play_alert_sound(self) -> None:
+        """Play alert sound on significant price change."""
+        try:
+            # Try system beep first
+            os.system("echo '\a'")
             
-    elif tao_current_price is not None:
-        printLog(f"-> Initial TAO Price: {tao_current_price:.6f}")
+            # Try playing sound file if available
+            if Path(ALERT_SOUND_FILE).exists():
+                subprocess.run(["afplay", ALERT_SOUND_FILE], check=True)
+        except Exception as e:
+            logger.error(f"Error playing sound alert: {e}")
+
+    def log_price_update(self, price: float, change: Optional[float] = None, important: bool = False) -> None:
+        """Log price update with optional formatting.
+        
+        Args:
+            price: Current TAO price
+            change: Price change percentage (optional)
+            important: Whether to highlight the message (optional)
+        """
+        subnet_info = self.fetch_subnet_details()
+        message = f"TAO Price: {price:.6f}"
+        if change is not None:
+            message += f" | Change in last {self.config.interval}s: {change:.6f}%"
+            if important:
+                message += " (Significant Change!)"
+
+        if important:
+            logger.info(f"{RED}{BOLD}{subnet_info} | {message}{RESET}")
+        else:
+            logger.info(f"{BOLD}{subnet_info}{RESET} -> {message}")
+
+    def calculate_price_change(self, current_price: float) -> Optional[float]:
+        """Calculate price change percentage.
+        
+        Args:
+            current_price: Current TAO price
+            
+        Returns:
+            Price change percentage or None if no previous price
+        """
+        if self.last_price is None:
+            return None
+        return ((current_price - self.last_price) / self.last_price) * 100
+
+    def monitor_loop(self) -> None:
+        """Main monitoring loop."""
+        while True:
+            current_price = self.fetch_tao_price()
+            
+            if current_price is not None:
+                price_change = self.calculate_price_change(current_price)
+                
+                if price_change is not None:
+                    self.log_price_update(current_price, price_change)
+                    if price_change >= self.config.threshold:
+                        self.log_price_update(current_price, price_change, important=True)
+                        self.play_alert_sound()
+                else:
+                    self.log_price_update(current_price)
+                
+                self.last_price = current_price
+            
+            time.sleep(self.config.interval)
+
+def parse_arguments() -> Config:
+    """Parse command line arguments.
     
-    tao_last_price = tao_current_price
+    Returns:
+        Config object containing runtime parameters
+    """
+    parser = argparse.ArgumentParser(description="Monitor TAO price changes")
+    parser.add_argument(
+        "--subnet",
+        type=int,
+        default=DEFAULT_SUBNET,
+        help=f"Subnet netuid (default: {DEFAULT_SUBNET})"
+    )
+    parser.add_argument(
+        "--interval",
+        type=int,
+        default=DEFAULT_INTERVAL,
+        help=f"Interval in seconds (default: {DEFAULT_INTERVAL})"
+    )
+    parser.add_argument(
+        "--threshold",
+        type=float,
+        default=DEFAULT_THRESHOLD,
+        help=f"Percentage change threshold for highlighting (default: {DEFAULT_THRESHOLD}%)"
+    )
     
-    time.sleep(interval_seconds)
+    args = parser.parse_args()
+    return Config(
+        subnet=args.subnet,
+        interval=args.interval,
+        threshold=args.threshold
+    )
+
+def main() -> None:
+    """Main entry point."""
+    config = parse_arguments()
+    monitor = PriceMonitor(config)
+    
+    try:
+        monitor.monitor_loop()
+    except KeyboardInterrupt:
+        logger.info("Monitoring stopped by user")
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        raise
+
+if __name__ == "__main__":
+    main()
