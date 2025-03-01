@@ -28,6 +28,7 @@ ALERT_SOUND_FILE = "alert.mp3"
 
 # ANSI color codes
 RED = "\033[91m"
+GREEN = "\033[92m"
 BOLD = "\033[1m"
 RESET = "\033[0m"
 
@@ -104,12 +105,16 @@ class PriceMonitor:
         subnet_info = self.fetch_subnet_details()
         message = f"TAO Price: {price:.6f}"
         if change is not None:
-            message += f" | Change in last {self.config.interval}s: {change:.6f}%"
+            if change != 0:
+                color = GREEN if change > 0 else RED
+                message += f" | Change in last {self.config.interval}s: {color}{change:+.6f}%{RESET}"
+            else:
+                message += f" | Change in last {self.config.interval}s: {change:+.6f}%"
             if important:
                 message += " (Significant Change!)"
 
         if important:
-            logger.info(f"{RED}{BOLD}{subnet_info} | {message}{RESET}")
+            logger.info(f"{BOLD}{subnet_info} | {message}{RESET}")
         else:
             logger.info(f"{BOLD}{subnet_info}{RESET} -> {message}")
 
