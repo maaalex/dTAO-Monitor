@@ -151,10 +151,11 @@ class PriceMonitor:
                 price_change = self.calculate_price_change(current_price)
                 
                 if price_change is not None:
-                    self.log_price_update(current_price, price_change)
                     if abs(price_change) >= self.config.threshold:
                         self.log_price_update(current_price, price_change, important=True)
                         self.play_alert_sound()
+                    else:
+                        self.log_price_update(current_price, price_change)
                 else:
                     self.log_price_update(current_price)
                 
