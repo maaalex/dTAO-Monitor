@@ -50,11 +50,22 @@ class PriceMonitor:
         self.subtensor = bt.Subtensor(network=NETWORK)
         self.last_price: Optional[float] = None
         self._check_alert_sound_file()
+        self._log_configuration()
 
     def _check_alert_sound_file(self) -> None:
         """Verify alert sound file exists."""
         if not Path(ALERT_SOUND_FILE).exists():
             logger.warning(f"Alert sound file {ALERT_SOUND_FILE} not found. Sound alerts will be disabled.")
+
+    def _log_configuration(self) -> None:
+        """Log monitor configuration details."""
+        subnet_info = self.fetch_subnet_details()
+        logger.info(f"{BOLD}=== TAO Price Monitor Configuration ==={RESET}")
+        logger.info(f"{BOLD}Network:{RESET}    {NETWORK}")
+        logger.info(f"{BOLD}Subnet:{RESET}     {subnet_info}")
+        logger.info(f"{BOLD}Interval:{RESET}   {self.config.interval} seconds ({self.config.interval / 60:.1f} minutes)")
+        logger.info(f"{BOLD}Threshold:{RESET}  {self.config.threshold}%")
+        logger.info(f"{BOLD}======================================={RESET}\n")
 
     def fetch_tao_price(self) -> Optional[float]:
         """Fetch the current TAO price from Bittensor.
