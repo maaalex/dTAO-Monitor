@@ -200,6 +200,24 @@ def main() -> None:
     config = parse_arguments()
     monitor = PriceMonitor(config)
     
+    caffeinate_process = start_caffeinate()
+    
+    try:
+        run_monitor(monitor)
+    finally:
+        stop_caffeinate(caffeinate_process)
+
+def start_caffeinate() -> subprocess.Popen:
+    """Start caffeinate process to prevent sleep."""
+    return subprocess.Popen(["caffeinate", "-di"])
+
+def stop_caffeinate(process: subprocess.Popen) -> None:
+    """Stop caffeinate process."""
+    if process:
+        process.terminate()
+
+def run_monitor(monitor: PriceMonitor) -> None:
+    """Run the price monitor loop."""
     try:
         monitor.monitor_loop()
     except KeyboardInterrupt:
