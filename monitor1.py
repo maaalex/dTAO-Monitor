@@ -237,7 +237,7 @@ class PriceMonitor:
             for subnet in self.config.subnets:
                 self.monitor_subnet(subnet)
 
-            print("\n")
+            print() # new line as separator
             time.sleep(self.config.interval)
 
 def parse_arguments() -> str:
