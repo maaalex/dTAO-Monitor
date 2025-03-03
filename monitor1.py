@@ -53,7 +53,8 @@ class Config:
     """Configuration class to store runtime parameters."""
     network: str
     interval: int
-    alert_sound: str
+    alert_positive: str
+    alert_negative: str
     subnets: List[SubnetConfig]
 
     @classmethod
@@ -76,7 +77,7 @@ class Config:
         with open(config_path, 'r') as f:
             config_data = yaml.safe_load(f)
             
-        required_fields = ['network', 'interval', 'alert_sound', 'subnets']
+        required_fields = ['network', 'interval', 'alert_positive', 'alert_negative', 'subnets']
         missing_fields = [field for field in required_fields if field not in config_data]
         
         if missing_fields:
@@ -94,7 +95,8 @@ class Config:
         return cls(
             network=config_data['network'],
             interval=config_data['interval'],
-            alert_sound=config_data['alert_sound'],
+            alert_positive=config_data['alert_positive'],
+            alert_negative=config_data['alert_negative'],
             subnets=subnets
         )
 
@@ -110,14 +112,14 @@ class PriceMonitor:
         self.last_prices: Dict[int, Optional[float]] = {
             subnet.netuid: None for subnet in config.subnets
         }
-        self._check_alert_sound_file()
+        self._check_alert_sound_files()
         self._update_subnet_info()
         self._log_configuration()
 
-    def _check_alert_sound_file(self) -> None:
-        """Verify alert sound file exists."""
-        if not Path(self.config.alert_sound).exists():
-            logger.warning(f"Alert sound file {self.config.alert_sound} not found. Sound alerts will be disabled.")
+    def _check_alert_sound_files(self) -> None:
+        """Verify alert sound files exists."""
+        if not Path(self.config.alert_positive).exists() or not Path(self.config.alert_negative).exists():
+            logger.warning("Alert sound files not found. Sound alerts will be disabled.")
 
     def _update_subnet_info(self) -> None:
         """Update subnet information for all monitored subnets."""
@@ -127,11 +129,10 @@ class PriceMonitor:
 
     def _log_configuration(self) -> None:
         """Log monitor configuration details."""
-        print("\n") 
+        print("") 
         logger.info(f"{BOLD}=== TAO Price Monitor Configuration ==={RESET}")
         logger.info(f"{BOLD}Network:{RESET}      {self.config.network}")
         logger.info(f"{BOLD}Interval:{RESET}     {self.config.interval} seconds ({self.config.interval / 60:.1f} minutes)")
-        logger.info(f"{BOLD}Alert Sound:{RESET}  {self.config.alert_sound}")
         logger.info(f"{BOLD}Monitored Subnets:{RESET}")
         for subnet in self.config.subnets:
             logger.info(f"  {subnet.display_name:<30} {subnet.threshold}%")
@@ -152,15 +153,20 @@ class PriceMonitor:
             logger.error(f"Error fetching subnet {netuid} info: {e}")
             return None
 
-    def play_alert_sound(self) -> None:
-        """Play alert sound on significant price change."""
+    def play_alert_sound(self, is_positive: bool) -> None:
+        """Play alert sound on significant price change.
+        
+        Args:
+            is_positive: Whether the price change is positive
+        """
         try:
             # Try system beep first
-            # os.system("echo '\a'")
+            os.system("echo '\a'")
             
             # Try playing sound file if available
-            if Path(self.config.alert_sound).exists():
-                subprocess.run(["afplay", self.config.alert_sound], check=True)
+            sound_file = self.config.alert_positive if is_positive else self.config.alert_negative
+            if Path(sound_file).exists():
+                subprocess.run(["afplay", sound_file], check=True)
         except Exception as e:
             logger.error(f"Error playing sound alert: {e}")
 
@@ -222,7 +228,7 @@ class PriceMonitor:
         if price_change is not None:
             if abs(price_change) >= subnet.threshold:
                 self.log_price_update(subnet, current_price, price_change, important=True)
-                self.play_alert_sound()
+                self.play_alert_sound(price_change > 0)
             else:
                 self.log_price_update(subnet, current_price, price_change)
         else:
