@@ -134,8 +134,7 @@ class PriceMonitor:
         logger.info(f"{BOLD}Alert Sound:{RESET}  {self.config.alert_sound}")
         logger.info(f"{BOLD}Monitored Subnets:{RESET}")
         for subnet in self.config.subnets:
-            # logger.info(f"  {subnet.display_name} -> {subnet.threshold}%")
-            logger.info(f"  {subnet.display_name}")
+            logger.info(f"  {subnet.display_name:<30} {subnet.threshold}%")
         logger.info(f"{BOLD}======================================={RESET}\n")
 
     def fetch_subnet_info(self, netuid: int) -> Optional[bt.SubnetInfo]:
@@ -178,16 +177,16 @@ class PriceMonitor:
         if change is not None:
             if change != 0:
                 color = GREEN if change > 0 else RED
-                message += f" | Change in last {self.config.interval}s: {color}{change:+.6f}%{RESET}"
+                message += f" -> Change in last {self.config.interval}s: {color}{change:+.6f}%{RESET}"
             else:
-                message += f" | Change in last {self.config.interval}s: {change:+.6f}%"
+                message += f" -> Change in last {self.config.interval}s: {change:+.6f}%"
             if important:
                 message += " (Significant Change!)"
 
         if important:
-            logger.info(f"{BOLD}{subnet.display_name} | {message}{RESET}")
+            logger.info(f"{BOLD}{subnet.display_name:<20} {message}{RESET}")
         else:
-            logger.info(f"{BOLD}{subnet.display_name}{RESET} -> {message}")
+            logger.info(f"{BOLD}{subnet.display_name:<20}{RESET} {message}")
 
     def calculate_price_change(self, netuid: int, current_price: float) -> Optional[float]:
         """Calculate price change percentage.
