@@ -161,7 +161,7 @@ class PriceMonitor:
         """
         try:
             # Try system beep first
-            os.system("echo '\a'")
+            # os.system("echo '\a'")
             
             # Try playing sound file if available
             sound_file = self.config.alert_positive if is_positive else self.config.alert_negative

@@ -17,3 +17,5 @@ subnets:
     threshold: 1.
   - netuid: 64
     threshold: 1. 
+  - netuid: 68
+    threshold: 1. 
