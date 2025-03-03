@@ -96,7 +96,7 @@ class PriceMonitor:
         logger.info(f"{BOLD}Subnet:{RESET}     {subnet_info}")
         logger.info(f"{BOLD}Interval:{RESET}   {self.config.interval} seconds ({self.config.interval / 60:.1f} minutes)")
         logger.info(f"{BOLD}Threshold:{RESET}  {self.config.threshold}%")
-        logger.info(f"{BOLD}Alert Sound:{RESET} {self.config.alert_sound}")
+        # logger.info(f"{BOLD}Alert Sound:{RESET}      {self.config.alert_sound}")
         logger.info(f"{BOLD}======================================={RESET}\n")
 
     def fetch_tao_price(self) -> Optional[float]:
