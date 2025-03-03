@@ -6,7 +6,7 @@ from pathlib import Path
 import os
 import subprocess
 import argparse
-from typing import Optional, Tuple
+from typing import Optional, Dict, List
 import logging
 import bittensor as bt
 from dataclasses import dataclass
@@ -27,13 +27,34 @@ BOLD = "\033[1m"
 RESET = "\033[0m"
 
 @dataclass
+class SubnetConfig:
+    """Configuration for a single subnet."""
+    netuid: int
+    threshold: float
+    _subnet_info: Optional[bt.SubnetInfo] = None
+
+    @property
+    def display_name(self) -> str:
+        """Get display name for the subnet using Bittensor subnet info."""
+        if self._subnet_info and self._subnet_info.subnet_name:
+            return f"{self.netuid} ({self._subnet_info.subnet_name})"
+        return f"Subnet {self.netuid}"
+
+    def update_subnet_info(self, subnet_info: Optional[bt.SubnetInfo]) -> None:
+        """Update subnet information.
+        
+        Args:
+            subnet_info: New subnet information from Bittensor
+        """
+        self._subnet_info = subnet_info
+
+@dataclass
 class Config:
     """Configuration class to store runtime parameters."""
     network: str
-    subnet: int
     interval: int
-    threshold: float
     alert_sound: str
+    subnets: List[SubnetConfig]
 
     @classmethod
     def from_yaml(cls, config_path: str) -> 'Config':
@@ -55,18 +76,26 @@ class Config:
         with open(config_path, 'r') as f:
             config_data = yaml.safe_load(f)
             
-        required_fields = ['network', 'subnet', 'interval', 'threshold', 'alert_sound']
+        required_fields = ['network', 'interval', 'alert_sound', 'subnets']
         missing_fields = [field for field in required_fields if field not in config_data]
         
         if missing_fields:
             raise ValueError(f"Missing required configuration fields: {', '.join(missing_fields)}")
             
+        subnets = []
+        for subnet_data in config_data['subnets']:
+            if 'netuid' not in subnet_data:
+                raise ValueError("Each subnet must have a 'netuid' field")
+            subnets.append(SubnetConfig(
+                netuid=subnet_data['netuid'],
+                threshold=subnet_data.get('threshold', 3.0)
+            ))
+            
         return cls(
             network=config_data['network'],
-            subnet=config_data['subnet'],
             interval=config_data['interval'],
-            threshold=config_data['threshold'],
-            alert_sound=config_data['alert_sound']
+            alert_sound=config_data['alert_sound'],
+            subnets=subnets
         )
 
 class PriceMonitor:
@@ -78,8 +107,11 @@ class PriceMonitor:
         """
         self.config = config
         self.subtensor = bt.Subtensor(network=config.network)
-        self.last_price: Optional[float] = None
+        self.last_prices: Dict[int, Optional[float]] = {
+            subnet.netuid: None for subnet in config.subnets
+        }
         self._check_alert_sound_file()
+        self._update_subnet_info()
         self._log_configuration()
 
     def _check_alert_sound_file(self) -> None:
@@ -87,49 +119,45 @@ class PriceMonitor:
         if not Path(self.config.alert_sound).exists():
             logger.warning(f"Alert sound file {self.config.alert_sound} not found. Sound alerts will be disabled.")
 
+    def _update_subnet_info(self) -> None:
+        """Update subnet information for all monitored subnets."""
+        for subnet in self.config.subnets:
+            subnet_info = self.fetch_subnet_info(subnet.netuid)
+            subnet.update_subnet_info(subnet_info)
+
     def _log_configuration(self) -> None:
         """Log monitor configuration details."""
-        subnet_info = self.fetch_subnet_details()
         print("\n") 
         logger.info(f"{BOLD}=== TAO Price Monitor Configuration ==={RESET}")
-        logger.info(f"{BOLD}Network:{RESET}    {self.config.network}")
-        logger.info(f"{BOLD}Subnet:{RESET}     {subnet_info}")
-        logger.info(f"{BOLD}Interval:{RESET}   {self.config.interval} seconds ({self.config.interval / 60:.1f} minutes)")
-        logger.info(f"{BOLD}Threshold:{RESET}  {self.config.threshold}%")
-        # logger.info(f"{BOLD}Alert Sound:{RESET}      {self.config.alert_sound}")
+        logger.info(f"{BOLD}Network:{RESET}      {self.config.network}")
+        logger.info(f"{BOLD}Interval:{RESET}     {self.config.interval} seconds ({self.config.interval / 60:.1f} minutes)")
+        logger.info(f"{BOLD}Alert Sound:{RESET}  {self.config.alert_sound}")
+        logger.info(f"{BOLD}Monitored Subnets:{RESET}")
+        for subnet in self.config.subnets:
+            # logger.info(f"  {subnet.display_name} -> {subnet.threshold}%")
+            logger.info(f"  {subnet.display_name}")
         logger.info(f"{BOLD}======================================={RESET}\n")
 
-    def fetch_tao_price(self) -> Optional[float]:
-        """Fetch the current TAO price from Bittensor.
+    def fetch_subnet_info(self, netuid: int) -> Optional[bt.SubnetInfo]:
+        """Fetch subnet information.
         
+        Args:
+            netuid: Subnet ID to fetch information for
+            
         Returns:
-            Current TAO price or None if fetch fails
+            SubnetInfo object or None if fetch fails
         """
         try:
-            subnet_info = self.subtensor.subnet(netuid=self.config.subnet)
-            return subnet_info.price.tao
+            return self.subtensor.subnet(netuid=netuid)
         except Exception as e:
-            logger.error(f"Error fetching price: {e}")
+            logger.error(f"Error fetching subnet {netuid} info: {e}")
             return None
-
-    def fetch_subnet_details(self) -> str:
-        """Fetch subnet details.
-        
-        Returns:
-            String containing subnet ID and name
-        """
-        try:
-            subnet_info = self.subtensor.subnet(netuid=self.config.subnet)
-            return f"{subnet_info.netuid} ({subnet_info.subnet_name})"
-        except Exception as e:
-            logger.error(f"Error fetching subnet details: {e}")
-            return f"Subnet {self.config.subnet}"
 
     def play_alert_sound(self) -> None:
         """Play alert sound on significant price change."""
         try:
             # Try system beep first
-            os.system("echo '\a'")
+            # os.system("echo '\a'")
             
             # Try playing sound file if available
             if Path(self.config.alert_sound).exists():
@@ -137,15 +165,15 @@ class PriceMonitor:
         except Exception as e:
             logger.error(f"Error playing sound alert: {e}")
 
-    def log_price_update(self, price: float, change: Optional[float] = None, important: bool = False) -> None:
+    def log_price_update(self, subnet: SubnetConfig, price: float, change: Optional[float] = None, important: bool = False) -> None:
         """Log price update with optional formatting.
         
         Args:
+            subnet: Subnet configuration
             price: Current TAO price
             change: Price change percentage (optional)
             important: Whether to highlight the message (optional)
         """
-        subnet_info = self.fetch_subnet_details()
         message = f"TAO Price: {price:.6f}"
         if change is not None:
             if change != 0:
@@ -157,42 +185,59 @@ class PriceMonitor:
                 message += " (Significant Change!)"
 
         if important:
-            logger.info(f"{BOLD}{subnet_info} | {message}{RESET}")
+            logger.info(f"{BOLD}{subnet.display_name} | {message}{RESET}")
         else:
-            logger.info(f"{BOLD}{subnet_info}{RESET} -> {message}")
+            logger.info(f"{BOLD}{subnet.display_name}{RESET} -> {message}")
 
-    def calculate_price_change(self, current_price: float) -> Optional[float]:
+    def calculate_price_change(self, netuid: int, current_price: float) -> Optional[float]:
         """Calculate price change percentage.
         
         Args:
+            netuid: Subnet ID
             current_price: Current TAO price
             
         Returns:
             Price change percentage or None if no previous price
         """
-        if self.last_price is None:
+        last_price = self.last_prices[netuid]
+        if last_price is None:
             return None
-        return ((current_price - self.last_price) / self.last_price) * 100
+        return ((current_price - last_price) / last_price) * 100
+
+    def monitor_subnet(self, subnet: SubnetConfig) -> None:
+        """Monitor a single subnet's price.
+        
+        Args:
+            subnet: Subnet configuration
+        """
+        subnet_info = self.fetch_subnet_info(subnet.netuid)
+        if subnet_info is None:
+            return
+            
+        # Update subnet info for display name
+        subnet.update_subnet_info(subnet_info)
+        
+        current_price = subnet_info.price.tao
+        price_change = self.calculate_price_change(subnet.netuid, current_price)
+        
+        if price_change is not None:
+            if abs(price_change) >= subnet.threshold:
+                self.log_price_update(subnet, current_price, price_change, important=True)
+                self.play_alert_sound()
+            else:
+                self.log_price_update(subnet, current_price, price_change)
+        else:
+            self.log_price_update(subnet, current_price)
+        
+        self.last_prices[subnet.netuid] = current_price
 
     def monitor_loop(self) -> None:
         """Main monitoring loop."""
         while True:
-            current_price = self.fetch_tao_price()
-            
-            if current_price is not None:
-                price_change = self.calculate_price_change(current_price)
-                
-                if price_change is not None:
-                    if abs(price_change) >= self.config.threshold:
-                        self.log_price_update(current_price, price_change, important=True)
-                        self.play_alert_sound()
-                    else:
-                        self.log_price_update(current_price, price_change)
-                else:
-                    self.log_price_update(current_price)
-                
-                self.last_price = current_price
-            
+            for subnet in self.config.subnets:
+                self.monitor_subnet(subnet)
+
+            print("\n")
             time.sleep(self.config.interval)
 
 def parse_arguments() -> str:

@@ -1,5 +1,16 @@
 network: "finney"
-subnet: 4
-interval: 900  # 15 minutes in seconds
-threshold: 3.0  # percentage
-alert_sound: "alert.mp3" 
+interval: 300  # seconds
+alert_sound: "alert.mp3"
+
+# List of subnets to monitor
+subnets:
+  - netuid: 4
+    threshold: 1.0  # percentage
+  - netuid: 8
+    threshold: 1.0
+  - netuid: 13
+    threshold: 1.0 
+  - netuid: 34
+    threshold: 1.0
+  - netuid: 64
+    threshold: 1.0 
