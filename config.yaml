@@ -5,12 +5,14 @@ alert_sound: "alert.mp3"
 # List of subnets to monitor
 subnets:
   - netuid: 4
-    threshold: 1.0  # percentage
+    threshold: 1. # percentage
   - netuid: 8
-    threshold: 1.0
+    threshold: 1.
   - netuid: 13
-    threshold: 1.0 
+    threshold: 1. 
   - netuid: 34
-    threshold: 1.0
+    threshold: 1.
+  - netuid: 56
+    threshold: 1.
   - netuid: 64
-    threshold: 1.0 
+    threshold: 1. 
