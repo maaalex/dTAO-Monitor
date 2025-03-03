@@ -1,0 +1,5 @@
+network: "finney"
+subnet: 4
+interval: 900  # 15 minutes in seconds
+threshold: 3.0  # percentage
+alert_sound: "alert.mp3" 

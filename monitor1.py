@@ -10,6 +10,7 @@ from typing import Optional, Tuple
 import logging
 import bittensor as bt
 from dataclasses import dataclass
+import yaml
 
 # Configure logging
 logging.basicConfig(
@@ -18,13 +19,6 @@ logging.basicConfig(
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 logger = logging.getLogger(__name__)
-
-# Constants
-NETWORK = "finney"
-DEFAULT_SUBNET = 4
-DEFAULT_INTERVAL = 60 * 15  # 15 minutes in seconds
-DEFAULT_THRESHOLD = 3.0
-ALERT_SOUND_FILE = "alert.mp3"
 
 # ANSI color codes
 RED = "\033[91m"
@@ -35,9 +29,45 @@ RESET = "\033[0m"
 @dataclass
 class Config:
     """Configuration class to store runtime parameters."""
+    network: str
     subnet: int
     interval: int
     threshold: float
+    alert_sound: str
+
+    @classmethod
+    def from_yaml(cls, config_path: str) -> 'Config':
+        """Create Config instance from YAML file.
+        
+        Args:
+            config_path: Path to YAML configuration file
+            
+        Returns:
+            Config instance with settings from YAML
+            
+        Raises:
+            FileNotFoundError: If config file doesn't exist
+            ValueError: If required config values are missing
+        """
+        if not Path(config_path).exists():
+            raise FileNotFoundError(f"Configuration file not found: {config_path}")
+            
+        with open(config_path, 'r') as f:
+            config_data = yaml.safe_load(f)
+            
+        required_fields = ['network', 'subnet', 'interval', 'threshold', 'alert_sound']
+        missing_fields = [field for field in required_fields if field not in config_data]
+        
+        if missing_fields:
+            raise ValueError(f"Missing required configuration fields: {', '.join(missing_fields)}")
+            
+        return cls(
+            network=config_data['network'],
+            subnet=config_data['subnet'],
+            interval=config_data['interval'],
+            threshold=config_data['threshold'],
+            alert_sound=config_data['alert_sound']
+        )
 
 class PriceMonitor:
     def __init__(self, config: Config):
@@ -47,24 +77,26 @@ class PriceMonitor:
             config: Configuration object containing runtime parameters
         """
         self.config = config
-        self.subtensor = bt.Subtensor(network=NETWORK)
+        self.subtensor = bt.Subtensor(network=config.network)
         self.last_price: Optional[float] = None
         self._check_alert_sound_file()
         self._log_configuration()
 
     def _check_alert_sound_file(self) -> None:
         """Verify alert sound file exists."""
-        if not Path(ALERT_SOUND_FILE).exists():
-            logger.warning(f"Alert sound file {ALERT_SOUND_FILE} not found. Sound alerts will be disabled.")
+        if not Path(self.config.alert_sound).exists():
+            logger.warning(f"Alert sound file {self.config.alert_sound} not found. Sound alerts will be disabled.")
 
     def _log_configuration(self) -> None:
         """Log monitor configuration details."""
         subnet_info = self.fetch_subnet_details()
+        print("\n") 
         logger.info(f"{BOLD}=== TAO Price Monitor Configuration ==={RESET}")
-        logger.info(f"{BOLD}Network:{RESET}    {NETWORK}")
+        logger.info(f"{BOLD}Network:{RESET}    {self.config.network}")
         logger.info(f"{BOLD}Subnet:{RESET}     {subnet_info}")
         logger.info(f"{BOLD}Interval:{RESET}   {self.config.interval} seconds ({self.config.interval / 60:.1f} minutes)")
         logger.info(f"{BOLD}Threshold:{RESET}  {self.config.threshold}%")
+        logger.info(f"{BOLD}Alert Sound:{RESET} {self.config.alert_sound}")
         logger.info(f"{BOLD}======================================={RESET}\n")
 
     def fetch_tao_price(self) -> Optional[float]:
@@ -100,8 +132,8 @@ class PriceMonitor:
             os.system("echo '\a'")
             
             # Try playing sound file if available
-            if Path(ALERT_SOUND_FILE).exists():
-                subprocess.run(["afplay", ALERT_SOUND_FILE], check=True)
+            if Path(self.config.alert_sound).exists():
+                subprocess.run(["afplay", self.config.alert_sound], check=True)
         except Exception as e:
             logger.error(f"Error playing sound alert: {e}")
 
@@ -163,50 +195,43 @@ class PriceMonitor:
             
             time.sleep(self.config.interval)
 
-def parse_arguments() -> Config:
+def parse_arguments() -> str:
     """Parse command line arguments.
     
     Returns:
-        Config object containing runtime parameters
+        Path to configuration file
     """
     parser = argparse.ArgumentParser(description="Monitor TAO price changes")
     parser.add_argument(
-        "--subnet",
-        type=int,
-        default=DEFAULT_SUBNET,
-        help=f"Subnet netuid (default: {DEFAULT_SUBNET})"
-    )
-    parser.add_argument(
-        "--interval",
-        type=int,
-        default=DEFAULT_INTERVAL,
-        help=f"Interval in seconds (default: {DEFAULT_INTERVAL})"
-    )
-    parser.add_argument(
-        "--threshold",
-        type=float,
-        default=DEFAULT_THRESHOLD,
-        help=f"Percentage change threshold for highlighting (default: {DEFAULT_THRESHOLD}%)"
+        "--config",
+        type=str,
+        default="config.yaml",
+        help="Path to configuration file (default: config.yaml)"
     )
     
     args = parser.parse_args()
-    return Config(
-        subnet=args.subnet,
-        interval=args.interval,
-        threshold=args.threshold
-    )
+    return args.config
 
 def main() -> None:
     """Main entry point."""
-    config = parse_arguments()
-    monitor = PriceMonitor(config)
-    
-    caffeinate_process = start_caffeinate()
+    config_path = parse_arguments()
     
     try:
-        run_monitor(monitor)
-    finally:
-        stop_caffeinate(caffeinate_process)
+        config = Config.from_yaml(config_path)
+        monitor = PriceMonitor(config)
+        
+        caffeinate_process = start_caffeinate()
+        
+        try:
+            run_monitor(monitor)
+        finally:
+            stop_caffeinate(caffeinate_process)
+    except FileNotFoundError as e:
+        logger.error(f"Configuration error: {e}")
+        raise
+    except ValueError as e:
+        logger.error(f"Configuration error: {e}")
+        raise
 
 def start_caffeinate() -> subprocess.Popen:
     """Start caffeinate process to prevent sleep."""
