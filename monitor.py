@@ -56,6 +56,7 @@ class Config:
     alert_positive: str
     alert_negative: str
     subnets: List[SubnetConfig]
+    alerts_on: bool = True  # Default to True for backward compatibility
 
     @classmethod
     def from_yaml(cls, config_path: str) -> 'Config':
@@ -97,7 +98,8 @@ class Config:
             interval=config_data['interval'],
             alert_positive=config_data['alert_positive'],
             alert_negative=config_data['alert_negative'],
-            subnets=subnets
+            subnets=subnets,
+            alerts_on=config_data.get('alerts_on', True)  # Default to True if not specified
         )
 
 class PriceMonitor:
@@ -133,6 +135,7 @@ class PriceMonitor:
         logger.info(f"{BOLD}=== TAO Price Monitor Configuration ==={RESET}")
         logger.info(f"{BOLD}Network:{RESET}      {self.config.network}")
         logger.info(f"{BOLD}Interval:{RESET}     {self.config.interval} seconds ({self.config.interval / 60:.1f} minutes)")
+        logger.info(f"{BOLD}Alerts:{RESET}       {'Enabled' if self.config.alerts_on else 'Disabled'}")
         logger.info(f"{BOLD}Monitored Subnets:{RESET}")
         for subnet in self.config.subnets:
             logger.info(f"  {subnet.display_name:<30} {subnet.threshold}%")
@@ -159,6 +162,9 @@ class PriceMonitor:
         Args:
             is_positive: Whether the price change is positive
         """
+        if not self.config.alerts_on:
+            return
+            
         try:
             # Try system beep first
             # os.system("echo '\a'")

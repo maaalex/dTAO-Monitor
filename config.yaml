@@ -1,5 +1,6 @@
 network: "finney"
 interval: 300  # seconds
+alerts_on: true
 alert_positive: "sounds/yeah.mp3"
 alert_negative: "sounds/wtf.mp3"
 
