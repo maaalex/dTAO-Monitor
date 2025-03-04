@@ -297,7 +297,7 @@ def run_monitor(monitor: PriceMonitor) -> None:
     try:
         monitor.monitor_loop()
     except KeyboardInterrupt:
-        logger.info("Monitoring stopped by user")
+        logger.warning("Monitoring stopped by user")
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
         raise
