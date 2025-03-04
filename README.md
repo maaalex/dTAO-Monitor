@@ -2,6 +2,8 @@
 
 **dTAO Monitor** is a tool for monitoring Bittensor's dTAO activity, providing real-time insights and configurable tracking.
 
+![Screenshot](assets/screens/screenshot_1.png)
+
 ## Installation Instructions
 
 ### **1. Ensure Python 3.12 is Installed**
