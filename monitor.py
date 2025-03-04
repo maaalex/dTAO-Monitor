@@ -193,7 +193,7 @@ class PriceMonitor:
             else:
                 message += f" -> Change in last {self.config.interval}s: {change:+.6f}%"
             if important:
-                message += " (Significant Change!)"
+                message += " 🔔 Significant Change!"
 
         if important:
             logger.info(f"{BOLD}{subnet.display_name:<20} {message}{RESET}")
