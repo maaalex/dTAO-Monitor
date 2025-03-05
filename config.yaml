@@ -1,5 +1,5 @@
 network: "finney"
-interval: 30  # seconds
+interval: 60  # seconds
 
 # Alert settings
 alerts_on: true
