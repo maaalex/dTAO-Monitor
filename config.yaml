@@ -1,5 +1,5 @@
 network: "finney"
-interval: 300  # seconds
+interval: 60  # seconds
 alerts_on: true
 alert_positive: "assets/sounds/yeah.mp3"
 alert_negative: "assets/sounds/wtf.mp3"
@@ -12,11 +12,17 @@ subnets:
     threshold: 1.
   - netuid: 13
     threshold: 1. 
+  - netuid: 25
+    threshold: 1. 
   - netuid: 34
+    threshold: 1.
+  - netuid: 52
     threshold: 1.
   - netuid: 56
     threshold: 1.
   - netuid: 64
     threshold: 1. 
   - netuid: 68
+    threshold: 1. 
+  - netuid: 70
     threshold: 1. 
