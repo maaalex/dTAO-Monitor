@@ -11,12 +11,12 @@
 ├── main.py              # Main entry point
 ├── config.yaml          # Configuration file
 ├── requirements.txt     # Python dependencies
-└── src/                # Source code package
+└── src/                 # Source code package
     ├── __init__.py
-    ├── config.py       # Configuration management
-    ├── logger.py       # Logging utilities
-    ├── alert_manager.py # Sound alert management
-    └── price_monitor.py # Core monitoring logic
+    ├── config.py          # Configuration management
+    ├── logger.py          # Logging utilities
+    ├── alert_manager.py   # Sound alert management
+    └── price_monitor.py   # Core monitoring logic
 ```
 
 ## Installation Instructions
