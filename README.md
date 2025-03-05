@@ -58,10 +58,12 @@ Here is an example of the structure:
 ```yaml
 network: "finney"
 interval: 300  # seconds
-alerts_on: true  # set to false to deactivate alerts
+
+# Alert settings
+alerts_on: true
 alert_positive: "sounds/yeah.mp3"
 alert_negative: "sounds/wtf.mp3"
-alert_volume: 0.5  # Alert volume (0.0 to 1.0)
+alert_volume: 0.5  # 0.0 to 1.0
 
 # List of subnets to monitor
 subnets:
