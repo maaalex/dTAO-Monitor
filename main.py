@@ -2,9 +2,9 @@ import argparse
 import subprocess
 import logging
 
-from config import Config
-from price_monitor import PriceMonitor
-from logger import setup_logger
+from src.config import Config
+from src.price_monitor import PriceMonitor
+from src.logger import setup_logger
 
 logger = setup_logger()
 

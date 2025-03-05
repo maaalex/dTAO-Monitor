@@ -3,9 +3,9 @@ from typing import Dict, Optional
 import bittensor as bt
 import logging
 
-from config import Config, SubnetConfig
-from logger import format_price_message, log_price_update, log_configuration
-from alert_manager import AlertManager
+from .config import Config, SubnetConfig
+from .logger import format_price_message, log_price_update, log_configuration
+from .alert_manager import AlertManager
 
 logger = logging.getLogger(__name__)
 
