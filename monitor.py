@@ -57,6 +57,7 @@ class Config:
     alert_negative: str
     subnets: List[SubnetConfig]
     alerts_on: bool = True  # Default to True for backward compatibility
+    alert_volume: float = 0.5  # Default volume to 50%
 
     @classmethod
     def from_yaml(cls, config_path: str) -> 'Config':
@@ -99,7 +100,8 @@ class Config:
             alert_positive=config_data['alert_positive'],
             alert_negative=config_data['alert_negative'],
             subnets=subnets,
-            alerts_on=config_data.get('alerts_on', True)  # Default to True if not specified
+            alerts_on=config_data.get('alerts_on', True),  # Default to True if not specified
+            alert_volume=config_data.get('alert_volume', 0.5)  # Default to 50% if not specified
         )
 
 class PriceMonitor:
@@ -128,18 +130,6 @@ class PriceMonitor:
         for subnet in self.config.subnets:
             subnet_info = self.fetch_subnet_info(subnet.netuid)
             subnet.update_subnet_info(subnet_info)
-
-    def _log_configuration(self) -> None:
-        """Log monitor configuration details."""
-        print("") 
-        logger.info(f"{BOLD}=== TAO Price Monitor Configuration ==={RESET}")
-        logger.info(f"{BOLD}Network:{RESET}      {self.config.network}")
-        logger.info(f"{BOLD}Interval:{RESET}     {self.config.interval} seconds ({self.config.interval / 60:.1f} minutes)")
-        logger.info(f"{BOLD}Alerts:{RESET}       {'Enabled' if self.config.alerts_on else 'Disabled'}")
-        logger.info(f"{BOLD}Monitored Subnets:{RESET}")
-        for subnet in self.config.subnets:
-            logger.info(f"  {subnet.display_name:<30} {subnet.threshold}%")
-        logger.info(f"{BOLD}======================================={RESET}\n")
 
     def fetch_subnet_info(self, netuid: int) -> Optional[bt.SubnetInfo]:
         """Fetch subnet information.
@@ -172,7 +162,7 @@ class PriceMonitor:
             # Try playing sound file if available
             sound_file = self.config.alert_positive if is_positive else self.config.alert_negative
             if Path(sound_file).exists():
-                subprocess.run(["afplay", sound_file], check=True)
+                subprocess.run(["afplay", "-v", str(self.config.alert_volume), sound_file], check=True)
         except Exception as e:
             logger.error(f"Error playing sound alert: {e}")
 
@@ -250,6 +240,18 @@ class PriceMonitor:
 
             print() # new line as separator
             time.sleep(self.config.interval)
+
+    def _log_configuration(self) -> None:
+        """Log monitor configuration details."""
+        print("") 
+        logger.info(f"{BOLD}=== TAO Price Monitor Configuration ==={RESET}")
+        logger.info(f"{BOLD}Network:{RESET}      {self.config.network}")
+        logger.info(f"{BOLD}Interval:{RESET}     {self.config.interval} seconds ({self.config.interval / 60:.1f} minutes)")
+        logger.info(f"{BOLD}Alerts:{RESET}       {'Enabled' if self.config.alerts_on else 'Disabled'}")
+        logger.info(f"{BOLD}Monitored Subnets:{RESET}")
+        for subnet in self.config.subnets:
+            logger.info(f"  {subnet.display_name:<30} {subnet.threshold}%")
+        logger.info(f"{BOLD}======================================={RESET}\n")
 
 def parse_arguments() -> str:
     """Parse command line arguments.
