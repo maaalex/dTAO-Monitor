@@ -4,6 +4,21 @@
 
 ![Screenshot](assets/screens/screenshot_1.png)
 
+## Project Structure
+
+```
+.
+├── main.py              # Main entry point
+├── config.yaml          # Configuration file
+├── requirements.txt     # Python dependencies
+└── src/                # Source code package
+    ├── __init__.py
+    ├── config.py       # Configuration management
+    ├── logger.py       # Logging utilities
+    ├── alert_manager.py # Sound alert management
+    └── price_monitor.py # Core monitoring logic
+```
+
 ## Installation Instructions
 
 ### **1. Ensure Python 3.12 is Installed**
@@ -34,7 +49,7 @@ pip install -r requirements.txt
 ```
 
 ### **4. Modify Configuration**
-Customize the `config.xml` file according to your preferences before running the monitor.
+Customize the `config.yaml` file according to your preferences before running the monitor.
 
 #### **Example Configuration Structure**
 The configuration file allows you to specify network settings, monitoring intervals, and alert sounds.
@@ -46,6 +61,7 @@ interval: 300  # seconds
 alerts_on: true  # set to false to deactivate alerts
 alert_positive: "sounds/yeah.mp3"
 alert_negative: "sounds/wtf.mp3"
+alert_volume: 0.5  # Alert volume (0.0 to 1.0)
 
 # List of subnets to monitor
 subnets:
@@ -69,17 +85,18 @@ subnets:
 - **`interval`**: Time in seconds between monitoring checks.
 - **`alerts_on`**: Enables (`true`) or disables (`false`) alert sounds.
 - **`alert_positive` / `alert_negative`**: Audio alerts triggered based on monitoring results.
+- **`alert_volume`**: Volume level for sound alerts (0.0 to 1.0).
 - **`subnets`**: List of subnets to monitor, each identified by `netuid` and a `threshold` percentage.
 
 ### **5. Run dTAO Monitor**
 Start the monitor using the following command:
 ```sh
-python monitor.py
+python main.py
 ```
 
 You can also specify a custom configuration file:
 ```sh
-python monitor.py --config custom_config.xml
+python main.py --config custom_config.yaml
 ```
 
 ## **License**
