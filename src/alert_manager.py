@@ -28,6 +28,7 @@ class AlertManager:
             is_positive: Whether the price change is positive
         """
         if not self.config.alerts_on:
+            print("\a")  # Standard ASCII bell
             return
             
         try:
@@ -35,4 +36,5 @@ class AlertManager:
             if Path(sound_file).exists():
                 subprocess.run(["afplay", "-v", str(self.config.alert_volume), sound_file], check=True)
         except Exception as e:
-            logger.error(f"Error playing sound alert: {e}") 
+            logger.error(f"Error playing sound alert: {e}")
+            print("\a")  # Fallback to standard beep 
