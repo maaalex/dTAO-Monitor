@@ -1,19 +1,22 @@
 network: "finney"
 interval: 60  # seconds
+
+# Alert settings
 alerts_on: true
 alert_positive: "assets/sounds/yeah.mp3"
 alert_negative: "assets/sounds/wtf.mp3"
+alert_volume: .5  # 50% volume
 
 # List of subnets to monitor
 subnets:
   - netuid: 4
-    threshold: 1. # percentage
+    threshold: 1.
   - netuid: 8
     threshold: 1.
   - netuid: 13
     threshold: 1. 
   - netuid: 25
-    threshold: 1. 
+    threshold: 1.
   - netuid: 34
     threshold: 1.
   - netuid: 52
