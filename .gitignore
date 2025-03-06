@@ -1,2 +1,3 @@
 venv
 config.yaml
+/src/__pycache__
