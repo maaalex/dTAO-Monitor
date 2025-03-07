@@ -25,6 +25,7 @@ def start_caffeinate() -> Optional[int]:
     """
     try:
         import subprocess
+        # Use -d to prevent display sleep and -i to prevent idle sleep
         process = subprocess.Popen(['caffeinate', '-i'])
         return process.pid
     except Exception as e:
@@ -40,6 +41,8 @@ def stop_caffeinate(pid: Optional[int]) -> None:
     if pid:
         try:
             os.kill(pid, signal.SIGTERM)
+            # Wait a bit to ensure the process is terminated
+            time.sleep(0.1)
         except Exception as e:
             logging.error(f"Failed to stop caffeinate: {e}")
 
@@ -55,12 +58,24 @@ def main() -> None:
     # Initialize caffeinate process
     caffeinate_pid = None
     
+    def cleanup(signum=None, frame=None):
+        """Cleanup function to ensure caffeinate is stopped."""
+        nonlocal caffeinate_pid
+        if caffeinate_pid:
+            # logger.info("Stopping caffeinate process...")
+            stop_caffeinate(caffeinate_pid)
+            caffeinate_pid = None
+        # Exit the script after cleanup
+        sys.exit(0)
+    
     try:
         # Load configuration
         config = Config.from_yaml(args.config)
         
         # Start caffeinate to prevent system sleep
         caffeinate_pid = start_caffeinate()
+        # if caffeinate_pid:
+            # logger.info("Started caffeinate to prevent system sleep")
         
         # Create and start monitor
         monitor = PriceMonitor(config)
@@ -68,12 +83,14 @@ def main() -> None:
             
     except KeyboardInterrupt:
         logger.info("Stopping TAO price monitor")
+        cleanup()
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
+        cleanup()
         sys.exit(1)
     finally:
         # Always stop caffeinate, even if there's an error
-        stop_caffeinate(caffeinate_pid)
+        cleanup()
 
 if __name__ == '__main__':
     main() 
