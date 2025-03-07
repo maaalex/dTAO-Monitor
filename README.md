@@ -85,7 +85,7 @@ subnets:
 
 - **`network`**: Specifies the network to connect to (e.g., "finney").
 - **`interval`**: Time in seconds between monitoring checks.
-- **`alerts_on`**: Enables (`true`) or disables (`false`) alert sounds.
+- **`alerts_on`**: Enables or disables alert sounds with fallback to system beep.
 - **`alert_positive` / `alert_negative`**: Audio alerts triggered based on monitoring results.
 - **`alert_volume`**: Volume level for sound alerts (0.0 to 1.0).
 - **`subnets`**: List of subnets to monitor, each identified by `netuid` and a `threshold` percentage.
