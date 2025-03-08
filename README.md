@@ -58,6 +58,7 @@ Here is an example of the structure:
 ```yaml
 network: "finney"
 interval: 300  # seconds
+threshold: 1.  # default percent change
 
 # Alert settings
 alerts_on: true
@@ -67,28 +68,22 @@ alert_volume: 0.5  # 0.0 to 1.0
 
 # List of subnets to monitor
 subnets:
-  - netuid: 4
-    threshold: 1. # percentage
-  - netuid: 8
-    threshold: 1.
   - netuid: 13
-    threshold: 1. 
+  - netuid: 19
   - netuid: 34
-    threshold: 1.
-  - netuid: 56
-    threshold: 1.
-  - netuid: 64
-    threshold: 1. 
+  - netuid: 52
+    threshold: 1.5  # subnet percent change
   - netuid: 68
-    threshold: 1. 
+    threshold: .5
 ```
 
 - **`network`**: Specifies the network to connect to (e.g., "finney").
 - **`interval`**: Time in seconds between monitoring checks.
+- **`threshold`**: Default percent change threshold for all subnets.
 - **`alerts_on`**: Enables or disables alert sounds with fallback to system beep.
 - **`alert_positive` / `alert_negative`**: Audio alerts triggered based on monitoring results.
 - **`alert_volume`**: Volume level for sound alerts (0.0 to 1.0).
-- **`subnets`**: List of subnets to monitor, each identified by `netuid` and a `threshold` percentage.
+- **`subnets`**: List of subnets to monitor, each identified by `netuid` and optional subnet-specific `threshold` to override default.
 
 ### **5. Run dTAO Monitor**
 Start the monitor using the following command:
