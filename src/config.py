@@ -31,6 +31,7 @@ class Config:
     """Configuration class to store runtime parameters."""
     network: str
     interval: int
+    threshold: float  # Default threshold for all subnets
     alert_positive: str
     alert_negative: str
     subnets: List[SubnetConfig]
@@ -57,7 +58,7 @@ class Config:
         with open(config_path, 'r') as f:
             config_data = yaml.safe_load(f)
             
-        required_fields = ['network', 'interval', 'alert_positive', 'alert_negative', 'subnets']
+        required_fields = ['network', 'interval', 'threshold', 'alert_positive', 'alert_negative', 'subnets']
         missing_fields = [field for field in required_fields if field not in config_data]
         
         if missing_fields:
@@ -69,12 +70,13 @@ class Config:
                 raise ValueError("Each subnet must have a 'netuid' field")
             subnets.append(SubnetConfig(
                 netuid=subnet_data['netuid'],
-                threshold=subnet_data.get('threshold', 3.0)
+                threshold=subnet_data.get('threshold', config_data['threshold'])
             ))
             
         return cls(
             network=config_data['network'],
             interval=config_data['interval'],
+            threshold=config_data['threshold'],
             alert_positive=config_data['alert_positive'],
             alert_negative=config_data['alert_negative'],
             subnets=subnets,
