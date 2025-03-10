@@ -28,13 +28,13 @@ def format_price_message(price: float, change: Optional[float] = None, interval:
     Returns:
         Formatted message string
     """
-    message = f"TAO Price: {price:.6f}"
+    message = f"τ{price:.6f}"
     if change is not None:
         if change != 0:
             color = GREEN if change > 0 else RED
-            message += f" -> Change in last {interval}s: {color}{change:+.6f}%{RESET}"
+            message += f" -> Change last {interval}s: {color}{change:+.6f}%{RESET}"
         else:
-            message += f" -> Change in last {interval}s: {change:+.6f}%"
+            message += f" -> Change last {interval}s: {change:+.6f}%"
         if important:
             message += " 🔔 Significant Change!"
     return message
