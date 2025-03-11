@@ -1,6 +1,6 @@
 network: "finney"
-interval: 60  # seconds
-threshold: 1.  # default percent change
+interval: 10  # seconds
+threshold: .5  # default percent change
 
 # Alert settings
 alerts_on: true
@@ -10,19 +10,10 @@ alert_volume: .5  # 50% volume
 
 # List of subnets to monitor
 subnets:
-  - netuid: 56
-  - netuid: 8
-  - netuid: 25
-  - netuid: 34
-  - netuid: 5
-  - netuid: 19
   - netuid: 13
-    threshold: .5
   - netuid: 52
-    threshold: .5 
-  - netuid: 68
-    threshold: .5
-
-
+  - netuid: 73
+  - netuid: 74
+  
 
 
