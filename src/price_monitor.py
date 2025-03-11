@@ -103,5 +103,5 @@ class PriceMonitor:
             for subnet in self.config.subnets:
                 self.monitor_subnet(subnet)
 
-            print() # new line as separator
+            print("…") # new line as separator
             time.sleep(self.config.interval) 

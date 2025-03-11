@@ -1,5 +1,5 @@
 network: "finney"
-interval: 60  # seconds
+interval: 300  # seconds
 threshold: 1.  # default percent change
 
 # Alert settings
@@ -10,19 +10,79 @@ alert_volume: .5  # 50% volume
 
 # List of subnets to monitor
 subnets:
-  - netuid: 56
-  - netuid: 8
-  - netuid: 25
-  - netuid: 34
+  - netuid: 1
+  - netuid: 2
+  - netuid: 3
+  - netuid: 4
   - netuid: 5
-  - netuid: 19
+  - netuid: 6
+  - netuid: 7
+  - netuid: 8
+  - netuid: 9
+  - netuid: 10
+  - netuid: 11
+  - netuid: 12
   - netuid: 13
-    threshold: .5
+  - netuid: 14
+  - netuid: 15
+  - netuid: 16
+  - netuid: 17
+  - netuid: 18
+  - netuid: 19
+  - netuid: 20
+  - netuid: 21
+  - netuid: 22
+  - netuid: 23
+  - netuid: 24
+  - netuid: 25
+  - netuid: 26
+  - netuid: 27
+  - netuid: 28
+  - netuid: 29
+  - netuid: 30
+  - netuid: 31
+  - netuid: 32
+  - netuid: 33
+  - netuid: 34
+  - netuid: 35
+  - netuid: 36
+  - netuid: 37
+  - netuid: 38
+  - netuid: 39
+  - netuid: 40
+  - netuid: 41
+  - netuid: 42
+  - netuid: 43
+  - netuid: 44
+  - netuid: 45
+  - netuid: 46
+  - netuid: 47
+  - netuid: 48
+  - netuid: 49
+  - netuid: 50
+  - netuid: 51
   - netuid: 52
-    threshold: .5 
+  - netuid: 53
+  - netuid: 54
+  - netuid: 55
+  - netuid: 56
+  - netuid: 57
+  - netuid: 58
+  - netuid: 59
+  - netuid: 60
+  - netuid: 61
+  - netuid: 62
+  - netuid: 63
+  - netuid: 64
+  - netuid: 65
+  - netuid: 66
+  - netuid: 67
   - netuid: 68
-    threshold: .5
-
-
+  - netuid: 69
+  - netuid: 70
+  - netuid: 71
+  - netuid: 72
+  - netuid: 73
+  - netuid: 74
 
 
