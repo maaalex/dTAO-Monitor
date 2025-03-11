@@ -3,7 +3,7 @@ interval: 300  # seconds
 threshold: 1.  # default percent change
 
 # Alert settings
-alerts_on: true
+alerts_on: false
 alert_positive: "assets/sounds/yeah.mp3"
 alert_negative: "assets/sounds/wtf.mp3"
 alert_volume: .5  # 50% volume
