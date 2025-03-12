@@ -6,7 +6,7 @@ threshold: 1.  # default percent change
 alerts_on: false
 alert_positive: "assets/sounds/yeah.mp3"
 alert_negative: "assets/sounds/wtf.mp3"
-alert_volume: .5  # 50% volume
+alert_volume: .75  # 50% volume
 
 # List of subnets to monitor
 subnets:
@@ -78,11 +78,6 @@ subnets:
   - netuid: 66
   - netuid: 67
   - netuid: 68
-  - netuid: 69
-  - netuid: 70
-  - netuid: 71
-  - netuid: 72
-  - netuid: 73
-  - netuid: 74
+
 
 
