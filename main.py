@@ -26,7 +26,7 @@ def start_caffeinate() -> Optional[int]:
     try:
         import subprocess
         # Use -d to prevent display sleep and -i to prevent idle sleep
-        process = subprocess.Popen(['caffeinate', '-i'])
+        process = subprocess.Popen(['caffeinate', '-id'])
         return process.pid
     except Exception as e:
         logging.error(f"Failed to start caffeinate: {e}")
