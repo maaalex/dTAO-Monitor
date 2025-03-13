@@ -50,8 +50,6 @@ def log_price_update(logger: logging.Logger, subnet_name: str, message: str, imp
     """
     if important:
         logger.info(f"{BOLD}{subnet_name:<20} {message}{RESET}")
-    else:
-        logger.info(f"{BOLD}{subnet_name:<20}{RESET} {message}")
 
 def log_configuration(logger: logging.Logger, config: 'Config') -> None:
     """Log monitor configuration details.

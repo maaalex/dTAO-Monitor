@@ -27,6 +27,8 @@ class AlertManager:
         Args:
             is_positive: Whether the price change is positive
         """
+        if not is_positive: return
+    
         if not self.config.alerts_on:
             print("\a")  # Standard ASCII bell
             return
