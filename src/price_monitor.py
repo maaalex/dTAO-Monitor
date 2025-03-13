@@ -89,9 +89,12 @@ class PriceMonitor:
                 log_price_update(logger, subnet.display_name, message, important=True)
                 self.alert_manager.play_alert(price_change > 0)
             else:
-                message = format_price_message(current_price, price_change, self.config.interval)
-                log_price_update(logger, subnet.display_name, message)
+                # Only log non-threshold changes if log_threshold_only is False
+                if not self.config.log_threshold_only:
+                    message = format_price_message(current_price, price_change, self.config.interval)
+                    log_price_update(logger, subnet.display_name, message)
         else:
+            # Always log initial price
             message = format_price_message(current_price)
             log_price_update(logger, subnet.display_name, message)
         

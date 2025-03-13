@@ -50,6 +50,8 @@ def log_price_update(logger: logging.Logger, subnet_name: str, message: str, imp
     """
     if important:
         logger.info(f"{BOLD}{subnet_name:<20} {message}{RESET}")
+    else:
+        logger.info(f"{subnet_name:<20} {message}")
 
 def log_configuration(logger: logging.Logger, config: 'Config') -> None:
     """Log monitor configuration details.
@@ -64,6 +66,7 @@ def log_configuration(logger: logging.Logger, config: 'Config') -> None:
     logger.info(f"{BOLD}Interval:{RESET}     {config.interval} seconds ({config.interval / 60:.1f} minutes)")
     logger.info(f"{BOLD}Alerts:{RESET}       {'Enabled' if config.alerts_on else 'Disabled'}")
     logger.info(f"{BOLD}Alert Volume:{RESET} {config.alert_volume * 100}%")
+    logger.info(f"{BOLD}Log Threshold Only:{RESET} {'Yes' if config.log_threshold_only else 'No'}")
     logger.info(f"{BOLD}Monitored Subnets:{RESET}")
     for subnet in config.subnets:
         logger.info(f"  {subnet.display_name:<30} {subnet.threshold}%")
