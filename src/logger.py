@@ -67,6 +67,7 @@ def log_configuration(logger: logging.Logger, config: 'Config') -> None:
     logger.info(f"{BOLD}Alerts:{RESET}       {'Enabled' if config.alerts_on else 'Disabled'}")
     logger.info(f"{BOLD}Alert Volume:{RESET} {config.alert_volume * 100}%")
     logger.info(f"{BOLD}Log Threshold Only:{RESET} {'Yes' if config.log_threshold_only else 'No'}")
+    logger.info(f"{BOLD}Positive Alerts Only:{RESET} {'Yes' if config.alerts_positive_only else 'No'}")
     logger.info(f"{BOLD}Monitored Subnets:{RESET}")
     for subnet in config.subnets:
         logger.info(f"  {subnet.display_name:<30} {subnet.threshold}%")

@@ -5,9 +5,10 @@ log_threshold_only: true  # only log updates that exceed threshold
 
 # Alert settings
 alerts_on: true
+alerts_positive_only: true  # only trigger alerts for positive price changes
 alert_positive: "assets/sounds/yeah.mp3"
 alert_negative: "assets/sounds/wtf.mp3"
-alert_volume: .75  # 50% volume
+alert_volume: .5  # 50% volume
 
 # List of subnets to monitor
 subnets:
