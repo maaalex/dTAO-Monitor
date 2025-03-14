@@ -31,9 +31,7 @@ class AlertManager:
         if not is_positive and self.config.alerts_positive_only:
             return
             
-        if not self.config.alerts_on:
-            print("\a")  # Standard ASCII bell
-            return
+        if not self.config.alerts_on: return
             
         try:
             sound_file = self.config.alert_positive if is_positive else self.config.alert_negative

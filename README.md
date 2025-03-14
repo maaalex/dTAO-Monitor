@@ -80,7 +80,7 @@ subnets:
 - **`network`**: Specifies the network to connect to (e.g., "finney").
 - **`interval`**: Time in seconds between monitoring checks.
 - **`threshold`**: Default percent change threshold for all subnets.
-- **`alerts_on`**: Enables or disables alert sounds with fallback to system beep.
+- **`alerts_on`**: Enables or disables alert sounds.
 - **`alert_positive` / `alert_negative`**: Audio alerts triggered based on monitoring results.
 - **`alert_volume`**: Volume level for sound alerts (0.0 to 1.0).
 - **`subnets`**: List of subnets to monitor, each identified by `netuid` and optional subnet-specific `threshold` to override default.

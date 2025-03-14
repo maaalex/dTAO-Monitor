@@ -57,7 +57,7 @@ class NotificationManager:
             params = {
                 'message': message,
                 'title': title,
-                'sound': self.config.notification_sound,
+                'sound': self.config.notification_sound,  # Use config setting for sound
                 'group': "dTAO-monitor"
             }
             
