@@ -10,7 +10,7 @@ RESET = "\033[0m"
 def setup_logger() -> logging.Logger:
     """Configure and return a logger instance."""
     logging.basicConfig(
-        level=logging.DEBUG,
+        level=logging.INFO,
         format='%(asctime)s - %(levelname)s - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )

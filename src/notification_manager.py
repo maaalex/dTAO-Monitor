@@ -17,6 +17,7 @@ class NotificationManager:
         """
         self.config = config
         self._check_notification_support()
+        logger.debug(f"NotificationManager initialized with alerts_positive_only={config.alerts_positive_only}")
     
     def _check_notification_support(self) -> None:
         """Check if system notifications are supported."""
@@ -25,6 +26,7 @@ class NotificationManager:
             self.supported = False
         else:
             self.supported = True
+            logger.debug("System notifications are supported on macOS")
     
     def send_notification(self, subnet_netid: int, subnet_name: str, price: float, change: float, threshold: float) -> None:
         """Send a system notification for significant price changes.
@@ -45,9 +47,11 @@ class NotificationManager:
             return
             
         try:
-            # Format the notification message
+            # Format the notification message with explicit negative sign
             title = f"{subnet_name}"
-            message = f"{change:+.6f}% (TH: {threshold}%)\nτ{price:.6f}"
+            # Use explicit negative sign and absolute value for clarity
+            change_str = f"{'↓' if change < 0 else '↑'} {abs(change):.6f}%"
+            message = f"{change_str} (TH: {threshold}%)\nτ{price:.6f}"
             
             # Prepare notification parameters
             params = {
@@ -63,9 +67,10 @@ class NotificationManager:
                 params['open'] = url
                 logger.debug(f"Adding URL to notification: {url}")
             
-            logger.debug(f"Sending notification for {subnet_name}: {message}")
+            logger.debug(f"Preparing to send notification with params: {params}")
             # Send notification using pync
             Notifier.notify(**params)
+            logger.debug(f"Successfully sent notification for {subnet_name}")
             
         except Exception as e:
-            logger.error(f"Error sending notification: {e}") 
+            logger.error(f"Error sending notification: {e}", exc_info=True) 
