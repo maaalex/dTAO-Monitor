@@ -6,7 +6,7 @@ log_threshold_only: true  # only log updates that exceed threshold
 # Alert settings
 alerts_on: true
 alerts_positive_only: true  # only trigger alerts for positive price changes
-alert_positive: "assets/sounds/yeah.mp3"
+alert_positive: "assets/sounds/ping.mp3"
 alert_negative: "assets/sounds/wtf.mp3"
 alert_volume: .5  # 50% volume
 
@@ -80,6 +80,7 @@ subnets:
   - netuid: 66
   - netuid: 67
   - netuid: 68
+  - netuid: 69
+  - netuid: 70
   - netuid: 75
-
-
+  - netuid: 76
