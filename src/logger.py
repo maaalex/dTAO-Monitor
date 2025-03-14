@@ -10,7 +10,7 @@ RESET = "\033[0m"
 def setup_logger() -> logging.Logger:
     """Configure and return a logger instance."""
     logging.basicConfig(
-        level=logging.INFO,
+        level=logging.DEBUG,
         format='%(asctime)s - %(levelname)s - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
@@ -68,6 +68,10 @@ def log_configuration(logger: logging.Logger, config: 'Config') -> None:
     logger.info(f"{BOLD}Alert Volume:{RESET} {config.alert_volume * 100}%")
     logger.info(f"{BOLD}Log Threshold Only:{RESET} {'Yes' if config.log_threshold_only else 'No'}")
     logger.info(f"{BOLD}Positive Alerts Only:{RESET} {'Yes' if config.alerts_positive_only else 'No'}")
+    logger.info(f"{BOLD}System Notifications:{RESET} {'Enabled' if config.notifications_on else 'Disabled'}")
+    logger.info(f"{BOLD}Notification Sound:{RESET} {'Enabled' if config.notification_sound else 'Disabled'}")
+    if config.notification_url:
+        logger.info(f"{BOLD}Notification URL:{RESET} {config.notification_url}")
     logger.info(f"{BOLD}Monitored Subnets:{RESET}")
     for subnet in config.subnets:
         logger.info(f"  {subnet.display_name:<30} {subnet.threshold}%")

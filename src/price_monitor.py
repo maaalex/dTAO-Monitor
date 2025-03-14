@@ -6,6 +6,7 @@ import logging
 from .config import Config, SubnetConfig
 from .logger import format_price_message, log_price_update, log_configuration
 from .alert_manager import AlertManager
+from .notification_manager import NotificationManager
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,7 @@ class PriceMonitor:
             subnet.netuid: None for subnet in config.subnets
         }
         self.alert_manager = AlertManager(config)
+        self.notification_manager = NotificationManager(config)
         self._update_subnet_info()
         self._log_configuration()
 
@@ -87,7 +89,20 @@ class PriceMonitor:
             if abs(price_change) >= subnet.threshold:
                 message = format_price_message(current_price, price_change, self.config.interval, important=True)
                 log_price_update(logger, subnet.display_name, message, important=True)
+                
+                # Play sound alert
                 self.alert_manager.play_alert(price_change > 0)
+                
+                # Send system notification
+                if self.config.notifications_on:
+                    logger.debug(f"Attempting to send notification for {subnet.display_name}: change={price_change:+.6f}%, threshold={subnet.threshold}%, alerts_positive_only={self.config.alerts_positive_only}")
+                    self.notification_manager.send_notification(
+                        subnet_netid=subnet.netuid,
+                        subnet_name=subnet.display_name,
+                        price=current_price,
+                        change=price_change,
+                        threshold=subnet.threshold
+                    )
             else:
                 # Only log non-threshold changes if log_threshold_only is False
                 if not self.config.log_threshold_only:

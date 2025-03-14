@@ -8,10 +8,12 @@ alert_positive: "assets/sounds/yeah.mp3"
 alert_negative: "assets/sounds/wtf.mp3"
 alert_volume: 1.  # 50% volume
 
+notification_url: "https://taostats.io/subnets/"
+
 # List of subnets to monitor
 subnets:
   - netuid: 64  
-    threshold: .1
+    threshold: .0
   - netuid: 70
     threshold: 1.
   - netuid: 75

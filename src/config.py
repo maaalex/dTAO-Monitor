@@ -39,6 +39,9 @@ class Config:
     alert_volume: float = 0.5  # Default volume to 50%
     log_threshold_only: bool = False  # Only log updates that exceed threshold
     alerts_positive_only: bool = False  # Only trigger alerts for positive price changes
+    notifications_on: bool = True  # Enable system notifications
+    notification_sound: bool = True  # Play sound with notifications
+    notification_url: Optional[str] = None  # URL to open when notification is clicked
 
     @classmethod
     def from_yaml(cls, config_path: str) -> 'Config':
@@ -85,5 +88,8 @@ class Config:
             alerts_on=config_data.get('alerts_on', True),  # Default to True if not specified
             alert_volume=config_data.get('alert_volume', 0.5),  # Default to 50% if not specified
             log_threshold_only=config_data.get('log_threshold_only', False),  # Default to False if not specified
-            alerts_positive_only=config_data.get('alerts_positive_only', False)  # Default to False if not specified
+            alerts_positive_only=config_data.get('alerts_positive_only', False),  # Default to False if not specified
+            notifications_on=config_data.get('notifications_on', True),  # Default to True if not specified
+            notification_sound=config_data.get('notification_sound', True),  # Default to True if not specified
+            notification_url=config_data.get('notification_url')  # Optional URL to open on click
         ) 
