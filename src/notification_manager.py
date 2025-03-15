@@ -59,7 +59,7 @@ class NotificationManager:
                 'title': title,
                 'sound': self.config.notification_sound,  # Use config setting for sound
                 'sender': "com.apple.Terminal",
-                'appIcon': 'assets/icon2.png',
+                'appIcon': 'assets/icon.png',
                 'group': "dTAO-monitor"
             }
             
