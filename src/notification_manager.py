@@ -51,7 +51,7 @@ class NotificationManager:
             title = f"{subnet_name}"
             # Use explicit negative sign and absolute value for clarity
             change_str = f"{'↓' if change < 0 else '↑'} {abs(change):.6f}%"
-            message = f"{change_str} (TH: {threshold}%)\nτ{price:.6f}"
+            message = f"{change_str}\nτ{price:.6f}"
             
             # Prepare notification parameters
             params = {
