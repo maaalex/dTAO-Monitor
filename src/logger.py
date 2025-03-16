@@ -36,7 +36,7 @@ def format_price_message(price: float, change: Optional[float] = None, interval:
         else:
             message += f" -> Change last {interval}s: {change:+.6f}%"
         if important:
-            message += " 🔔 Significant Change!"
+            message += " 🔔"
     return message
 
 def log_price_update(logger: logging.Logger, subnet_name: str, message: str, important: bool = False) -> None:
