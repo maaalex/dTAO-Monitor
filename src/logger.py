@@ -32,9 +32,9 @@ def format_price_message(price: float, change: Optional[float] = None, interval:
     if change is not None:
         if change != 0:
             color = GREEN if change > 0 else RED
-            message += f" -> Change last {interval}s: {color}{change:+.6f}%{RESET}"
+            message += f" | {color}{change:+.6f}%{RESET} ({interval}s)"
         else:
-            message += f" -> Change last {interval}s: {change:+.6f}%"
+            message += f" | {change:+.6f}% ({interval}s)"
         if important:
             message += " 🔔"
     return message
@@ -62,16 +62,16 @@ def log_configuration(logger: logging.Logger, config: 'Config') -> None:
     """
     print("") 
     logger.info(f"{BOLD}=== TAO Price Monitor Configuration ==={RESET}")
-    logger.info(f"{BOLD}Network:{RESET}      {config.network}")
-    logger.info(f"{BOLD}Interval:{RESET}     {config.interval} seconds ({config.interval / 60:.1f} minutes)")
-    logger.info(f"{BOLD}Alerts:{RESET}       {'Enabled' if config.alerts_on else 'Disabled'}")
-    logger.info(f"{BOLD}Alert Volume:{RESET} {config.alert_volume * 100}%")
-    logger.info(f"{BOLD}Log Threshold Only:{RESET} {'Yes' if config.log_threshold_only else 'No'}")
-    logger.info(f"{BOLD}Positive Alerts Only:{RESET} {'Yes' if config.alerts_positive_only else 'No'}")
-    logger.info(f"{BOLD}System Notifications:{RESET} {'Enabled' if config.notifications_on else 'Disabled'}")
-    logger.info(f"{BOLD}Notification Sound:{RESET} {'Enabled' if config.notification_sound else 'Disabled'}")
+    logger.info(f"{BOLD}Network:{RESET}                 {config.network}")
+    logger.info(f"{BOLD}Interval:{RESET}                {config.interval}s ({config.interval / 60:.1f} minutes)")
+    logger.info(f"{BOLD}Alerts:{RESET}                  {'Yes' if config.alerts_on else 'No'}")
+    logger.info(f"{BOLD}Alert Volume:{RESET}            {config.alert_volume * 100}%")
+    logger.info(f"{BOLD}Log Threshold Only:{RESET}      {'Yes' if config.log_threshold_only else 'No'}")
+    logger.info(f"{BOLD}Positive Alerts Only:{RESET}    {'Yes' if config.alerts_positive_only else 'No'}")
+    logger.info(f"{BOLD}System Notifications:{RESET}    {'Yes' if config.notifications_on else 'No'}")
+    logger.info(f"{BOLD}Notification Sound:{RESET}      {'Yes' if config.notification_sound else 'No'}")
     if config.notification_url:
-        logger.info(f"{BOLD}Notification URL:{RESET} {config.notification_url}")
+        logger.info(f"{BOLD}Notification URL:{RESET}        {config.notification_url}")
     logger.info(f"{BOLD}Monitored Subnets:{RESET}")
     for subnet in config.subnets:
         logger.info(f"  {subnet.display_name:<30} {subnet.threshold}%")
