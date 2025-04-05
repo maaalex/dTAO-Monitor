@@ -1,4 +1,5 @@
-network: "finney"
+# network: "finney"
+network: "subvortex"
 interval: 60  # seconds
 threshold: 1.  # default percent change
 

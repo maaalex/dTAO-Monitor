@@ -20,6 +20,7 @@ class PriceMonitor:
         """
         self.config = config
         self.subtensor = bt.Subtensor(network=config.network)
+        logger.info(f"Connected to Bittensor network: {config.network}")
         self.last_prices: Dict[int, Optional[float]] = {
             subnet.netuid: None for subnet in config.subnets
         }
