@@ -1,7 +1,10 @@
 import time
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 import bittensor as bt
 import logging
+import concurrent.futures
+from datetime import datetime
+import threading
 
 from .config import Config, SubnetConfig
 from .logger import format_price_message, log_price_update, log_configuration
@@ -25,10 +28,19 @@ class PriceMonitor:
         self.last_prices: Dict[int, Optional[float]] = {
             subnet.netuid: None for subnet in config.subnets
         }
+        self.last_check_time: Dict[int, Optional[datetime]] = {
+            subnet.netuid: None for subnet in config.subnets
+        }
         self.alert_manager = AlertManager(config)
         self.notification_manager = NotificationManager(config)
+        # Lock to prevent concurrent Subtensor API calls
+        self.subtensor_lock = threading.Lock()
         self._update_subnet_info()
         self._log_configuration()
+        # Thread pool for parallel subnet monitoring
+        self.executor = concurrent.futures.ThreadPoolExecutor(
+            max_workers=min(len(config.subnets), 10)  # Limit max workers
+        )
 
     def _log_configuration(self) -> None:
         """Log monitor configuration details."""
@@ -36,9 +48,11 @@ class PriceMonitor:
 
     def _update_subnet_info(self) -> None:
         """Update subnet information for all monitored subnets."""
+        # Bittensor API isn't thread-safe, so use sequential processing here
         for subnet in self.config.subnets:
             subnet_info = self.fetch_subnet_info(subnet.netuid)
-            subnet.update_subnet_info(subnet_info)
+            if subnet_info:
+                subnet.update_subnet_info(subnet_info)
 
     def fetch_subnet_info(self, netuid: int) -> Optional[bt.SubnetInfo]:
         """Fetch subnet information.
@@ -50,7 +64,9 @@ class PriceMonitor:
             SubnetInfo object or None if fetch fails
         """
         try:
-            return self.subtensor.subnet(netuid=netuid)
+            # Use lock to prevent concurrent Subtensor API calls
+            with self.subtensor_lock:
+                return self.subtensor.subnet(netuid=netuid)
         except Exception as e:
             logger.error(f"Error fetching subnet {netuid} info: {e}")
             return None
@@ -115,12 +131,35 @@ class PriceMonitor:
             log_price_update(logger, subnet.display_name, message)
         
         self.last_prices[subnet.netuid] = current_price
+        self.last_check_time[subnet.netuid] = datetime.now()
+
+    def monitor_all_subnets(self) -> None:
+        """Monitor all subnets in parallel."""
+        # Submit all monitoring tasks to the thread pool
+        futures = [
+            self.executor.submit(self.monitor_subnet, subnet)
+            for subnet in self.config.subnets
+        ]
+        
+        # Wait for all monitoring tasks to complete
+        concurrent.futures.wait(futures)
 
     def monitor_loop(self) -> None:
         """Main monitoring loop."""
-        while True:
-            for subnet in self.config.subnets:
-                self.monitor_subnet(subnet)
-
-            print("…") # new line as separator
-            time.sleep(self.config.interval) 
+        try:
+            while True:
+                start_time = time.time()
+                
+                # Monitor all subnets in parallel
+                self.monitor_all_subnets()
+                
+                # Calculate remaining sleep time
+                elapsed = time.time() - start_time
+                sleep_time = max(0, self.config.interval - elapsed)
+                
+                print("…")  # new line as separator
+                if sleep_time > 0:
+                    time.sleep(sleep_time)
+        finally:
+            # Ensure thread pool is shutdown properly
+            self.executor.shutdown() 
