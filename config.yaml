@@ -1,6 +1,7 @@
-network: "finney"
-interval: 15  # seconds
-threshold: .1  # default percent change
+# network: "finney"
+network: "subvortex"
+interval: 60  # seconds
+threshold: 1.  # default percent change
 
 # Alert settings
 alerts_on: true
