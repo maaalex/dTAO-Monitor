@@ -1,14 +1,17 @@
 network: "finney"
 interval: 300  # seconds
-threshold: 1.  # default percent change
+threshold: .5  # default percent change
 log_threshold_only: true  # only log updates that exceed threshold
 
 # Alert settings
-alerts_on: true
-alerts_positive_only: true  # only trigger alerts for positive price changes
+alerts_on: false
+alerts_positive_only: false  # only trigger alerts for positive price changes
 alert_positive: "assets/sounds/ping.mp3"
 alert_negative: "assets/sounds/wtf.mp3"
 alert_volume: .5  # 50% volume
+
+notifications_on: true
+notification_url: "https://taostats.io/subnets/"
 
 # List of subnets to monitor
 subnets:
@@ -82,5 +85,15 @@ subnets:
   - netuid: 68
   - netuid: 69
   - netuid: 70
+  - netuid: 71
+  - netuid: 72
+  - netuid: 73
+  - netuid: 74
   - netuid: 75
   - netuid: 76
+  - netuid: 77
+  - netuid: 78
+  - netuid: 79
+  - netuid: 80
+  - netuid: 81
+
