@@ -10,6 +10,7 @@ from .config import Config, SubnetConfig
 from .logger import format_price_message, log_price_update, log_configuration
 from .alert_manager import AlertManager
 from .notification_manager import NotificationManager
+from .price_alarm import PriceAlarm
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +34,7 @@ class PriceMonitor:
         }
         self.alert_manager = AlertManager(config)
         self.notification_manager = NotificationManager(config)
+        self.price_alarm = PriceAlarm(config)  # Initialize price alarm
         # Lock to prevent concurrent Subtensor API calls
         self.subtensor_lock = threading.Lock()
         self._update_subnet_info()
@@ -132,6 +134,9 @@ class PriceMonitor:
         
         self.last_prices[subnet.netuid] = current_price
         self.last_check_time[subnet.netuid] = datetime.now()
+        
+        # Check for significant price drops
+        self.price_alarm.monitor_subnet(subnet)
 
     def monitor_all_subnets(self) -> None:
         """Monitor all subnets in parallel."""
