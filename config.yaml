@@ -5,14 +5,13 @@ threshold: .5  # default percent change
 
 # Alert settings
 alerts_on: true
-alerts_on: true
 alert_positive: "assets/sounds/positive.mp3"
 alert_negative: "assets/sounds/negative.mp3"
 alert_volume: .5  # 50% volume
 
 # Alarm settings
 alarm_enabled: false
-alarm_threshold: 5.0  # Trigger alarm at 10% drop
+alarm_threshold: 10.0  # Trigger alarm at 10% drop
 alarm_sound: "assets/sounds/alarm.mp3"
 alarm_volume: 1.0  # 100% volume
 
@@ -50,14 +49,3 @@ subnets:
     # threshold: 1.
   # - netuid: 76    # safe scan
   # - netuid: 81   # patrol
-
-# Backup List of subnets to monitor
-subnets-stake:
-  - netuid: 8
-  - netuid: 56
-  - netuid: 37
-  - netuid: 25
-  - netuid: 19
-
-  - netuid: 70
-    threshold: 1.
