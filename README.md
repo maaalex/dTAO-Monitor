@@ -2,7 +2,27 @@
 
 **dTAO Monitor** is a tool for monitoring Bittensor's subnet token prices, providing real-time insights and configurable tracking with optional alert sounds 🔔
 
-![Screenshot](assets/screens/screenshot_1.png)
+![Screenshot](assets/screens/screenshot_2.png)
+
+## Features
+
+### Price Monitoring
+- Real-time monitoring of subnet token prices
+- Configurable monitoring intervals
+- Customizable price change thresholds
+- Detailed logging with color-coded output
+
+### Alerts
+- Sound alerts for significant price changes
+- System notifications (macOS only) linking to [taostats.io](https://taostats.io/) subnet pages
+- Configurable alert sounds and volumes
+- Optional positive-only alerts
+
+### Price Drop Alarm
+- Monitors for significant price drops from initial values
+- Configurable drop threshold (default 10%)
+- Customizable alarm sound
+- Initial prices are recorded when the monitor starts
 
 ## Project Structure
 
@@ -106,26 +126,6 @@ You can also specify a custom configuration file:
 ```sh
 python main.py --config custom_config.yaml
 ```
-
-## Features
-
-### Price Monitoring
-- Real-time monitoring of subnet token prices
-- Configurable monitoring intervals
-- Customizable price change thresholds
-- Detailed logging with color-coded output
-
-### Alerts
-- Sound alerts for significant price changes
-- System notifications (macOS only)
-- Configurable alert sounds and volumes
-- Optional positive-only alerts
-
-### Price Drop Alarm
-- Monitors for significant price drops from initial values
-- Configurable drop threshold (default 10%)
-- Customizable alarm sound
-- Initial prices are recorded when the monitor starts
 
 ## **License**
 This project is licensed under the MIT License.
