@@ -1,10 +1,10 @@
 network: "finney"
 # network: "subvortex"
-interval: 10  # seconds
+interval: 180  # seconds
 threshold: .5  # default percent change
 
 # Alert settings
-alerts_on: true
+alerts_on: false
 alert_positive: "assets/sounds/positive.mp3"
 alert_negative: "assets/sounds/negative.mp3"
 alert_volume: .5  # 50% volume
@@ -26,15 +26,15 @@ subnets:
   # - netuid: 8   # ptn
   - netuid: 13   # datavers
   # - netuid: 17   # 404
-  - netuid: 18   # zeus
+  # - netuid: 18   # zeus
   - netuid: 19   # nineteen
   # - netuid: 26   # storb
   # - netuid: 23   # zuvu
-  - netuid: 31   # nullUntilBoot
-  - netuid: 33   # readyAI
+  # - netuid: 31   # nullUntilBoot
+  # - netuid: 33   # readyAI
   # - netuid: 34   # bitmind
   # - netuid: 37   # finetune
-  - netuid: 38   # dist training
+  # - netuid: 38   # dist training
   # - netuid: 41   # sportsensor
   # - netuid: 44   # score
   # - netuid: 51   # celium
