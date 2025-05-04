@@ -1,12 +1,12 @@
 network: "finney"
 # network: "subvortex"
 interval: 10  # seconds
-threshold: 5.  # default percent change
+threshold: .5  # default percent change
 
 # Alert settings
-alerts_on: false
-alert_positive: "assets/sounds/yeah.mp3"
-alert_negative: "assets/sounds/wtf.mp3"
+alerts_on: true
+alert_positive: "assets/sounds/positive.mp3"
+alert_negative: "assets/sounds/negative.mp3"
 alert_volume: 1.  # 50% volume
 
 # Alarm settings
