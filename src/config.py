@@ -45,7 +45,9 @@ class Config:
     # Alarm settings
     alarm_enabled: bool = False  # Whether to enable price drop alarm
     alarm_threshold: float = 10.0  # Percentage drop to trigger alarm
-    alarm_sound: str = "assets/sounds/alarm.mp3"  # Sound file for alarm
+    alarm_negative_only: bool = True  # Whether to only trigger alarms for negative changes
+    alarm_sound_positive: str = "assets/sounds/yeah.mp3"  # Sound file for positive changes
+    alarm_sound_negative: str = "assets/sounds/alarm.mp3"  # Sound file for negative changes
     alarm_volume: float = 1.0  # Volume for alarm sound
 
     @classmethod
@@ -100,6 +102,8 @@ class Config:
             # Alarm settings
             alarm_enabled=config_data.get('alarm_enabled', False),
             alarm_threshold=config_data.get('alarm_threshold', 10.0),
-            alarm_sound=config_data.get('alarm_sound', "assets/sounds/alarm.mp3"),
+            alarm_negative_only=config_data.get('alarm_negative_only', True),
+            alarm_sound_positive=config_data.get('alarm_sound_positive', "assets/sounds/alarm.mp3"),
+            alarm_sound_negative=config_data.get('alarm_sound_negative', "assets/sounds/alarm.mp3"),
             alarm_volume=config_data.get('alarm_volume', 1.0)
         ) 

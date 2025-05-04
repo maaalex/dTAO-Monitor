@@ -76,7 +76,7 @@ def log_configuration(logger: logging.Logger, config: 'Config') -> None:
     logger.info(f"{BOLD}Price Change Alarm:{RESET}      {'Yes' if config.alarm_enabled else 'No'}")
     if config.alarm_enabled:
         logger.info(f"{BOLD}Alarm Threshold:{RESET}         {config.alarm_threshold}%")
-        logger.info(f"{BOLD}Alarm Sound:{RESET}             {config.alarm_sound}")
+        logger.info(f"{BOLD}Alarm Sound:{RESET}             {config.alarm_sound_positive} (positive) / {config.alarm_sound_negative} (negative)")
         logger.info(f"{BOLD}Alarm Volume:{RESET}            {config.alarm_volume * 100}%")
     logger.info(f"{BOLD}Monitored Subnets:{RESET}")
     for subnet in config.subnets:

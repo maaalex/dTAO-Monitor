@@ -13,7 +13,7 @@ alert_volume: .3  # 50% volume
 alarm_enabled: true
 alarm_threshold: 3.0  # Trigger alarm at 3% change
 alarm_negative_only: true  # Whether to only trigger alarms for negative changes
-alarm_sound_positive: "assets/sounds/alarm.mp3"
+alarm_sound_positive: "assets/sounds/yeah.mp3"
 alarm_sound_negative: "assets/sounds/alarm.mp3"
 alarm_volume: 1.0  # 100% volume
 
