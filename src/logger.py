@@ -73,7 +73,7 @@ def log_configuration(logger: logging.Logger, config: 'Config') -> None:
     if config.notification_url:
         logger.info(f"{BOLD}Notification URL:{RESET}        {config.notification_url}")
     # Alarm settings
-    logger.info(f"{BOLD}Price Drop Alarm:{RESET}        {'Yes' if config.alarm_enabled else 'No'}")
+    logger.info(f"{BOLD}Price Change Alarm:{RESET}      {'Yes' if config.alarm_enabled else 'No'}")
     if config.alarm_enabled:
         logger.info(f"{BOLD}Alarm Threshold:{RESET}         {config.alarm_threshold}%")
         logger.info(f"{BOLD}Alarm Sound:{RESET}             {config.alarm_sound}")
