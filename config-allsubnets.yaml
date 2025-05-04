@@ -1,10 +1,10 @@
 network: "finney"
 interval: 300  # seconds
-threshold: 1.  # default percent change
+threshold: .5  # default percent change
 log_threshold_only: true  # only log updates that exceed threshold
 
 # Alert settings
-alerts_on: true
+alerts_on: false
 alerts_positive_only: true  # only trigger alerts for positive price changes
 alert_positive: "assets/sounds/ping.mp3"
 alert_negative: "assets/sounds/wtf.mp3"
@@ -23,7 +23,6 @@ subnets:
   - netuid: 6
   - netuid: 7
   - netuid: 8
-  - netuid: 9
   - netuid: 10
   - netuid: 11
   - netuid: 12
@@ -96,4 +95,10 @@ subnets:
   - netuid: 79
   - netuid: 80
   - netuid: 81
-
+  - netuid: 82
+  - netuid: 83
+  - netuid: 84
+  - netuid: 85
+  - netuid: 86
+  - netuid: 87
+  - netuid: 88
