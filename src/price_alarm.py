@@ -37,10 +37,10 @@ class PriceAlarm:
             subnet_info = self._fetch_subnet_info(subnet.netuid)
             if subnet_info:
                 self.initial_prices[subnet.netuid] = subnet_info.price.tao
-                logger.info(f"Initial price for subnet {subnet.display_name}: τ{subnet_info.price.tao:.6f}")
+                logger.info(f"Initial price for subnet {subnet.netuid}: τ{subnet_info.price.tao:.6f}")
             else:
                 self.initial_prices[subnet.netuid] = None
-                logger.warning(f"Could not initialize price for subnet {subnet.display_name}")
+                logger.warning(f"Could not initialize price for subnet {subnet.netuid}")
                 
     def _fetch_subnet_info(self, netuid: int) -> Optional[bt.SubnetInfo]:
         """Fetch subnet information.
