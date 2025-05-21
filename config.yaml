@@ -7,12 +7,12 @@ threshold: .25  # default percent change
 alerts_on: true
 alert_positive: "assets/sounds/positive.mp3"
 alert_negative: "assets/sounds/negative.mp3"
-alert_volume: .3  # 50% volume
+alert_volume: .1  # 50% volume
 
 # Alarm settings
 alarm_enabled: true
-alarm_threshold: 3.0  # Trigger alarm at 3% change
-alarm_negative_only: true  # Whether to only trigger alarms for negative changes
+alarm_threshold: 8.0  # Trigger alarm at 3% change
+alarm_negative_only: false  # Whether to only trigger alarms for negative changes
 alarm_sound_positive: "assets/sounds/yeah.mp3"
 alarm_sound_negative: "assets/sounds/alarm.mp3"
 alarm_volume: 1.0  # 100% volume
@@ -21,18 +21,57 @@ notification_url: "https://taostats.io/subnets/"
 
 # List of subnets to monitor
 subnets:
+- netuid: 3   # templar
+- netuid: 5   # open kaito
+- netuid: 12   # horde
+# - netuid: 14   # TAOhash
+- netuid: 15   # d_V
+# - netuid: 17   # 404
+# - netuid: 18   # zeus
+# - netuid: 19   # nineteen
+- netuid: 21   # omega any2any - low mc/fdv, will buy back alpha
+# - netuid: 27   # NIcompute
+# - netuid: 28   # fish https://www.tao.app/portfolio?coldkey=5Gy1XdCUj3JxaEA2uM9vYmVKii3ech2MbopD5iw6EEZkeWCZ owned 14 and sold it to JJ, he then started to buy up 14 weeks before announcement in small increments to avoid detection, while this is going on he bought LOL 28 for cheap af bc former owner sold all his alpah and it was not as appealing to others to buy, once fish bought 28, he then fudded saying whoever buying this sn will get dumped on while he has been accumulating under his alt wallet, which is now #1 with close to 100k alpha. Fish is not selling this sn to NOBODY. he will build. this is all on chain and dates match. yall can check for yourself if you're not lazy to dig. btw creativebuild and lucian probably thinks the same as they've sorta kinda confirmed
+- netuid: 33   # readyAI
+- netuid: 56   # gradients
+- netuid: 57   # gaia -> https://x.com/badenglishtea/status/1920485916940153304
+# - netuid: 64   # chutes
+# - netuid: 75   # hippius
+- netuid: 85   # vidaio
+
+subnets-old:
   - netuid: 3   # templar
-  - netuid: 12   # horde
-  - netuid: 14   # TAOhash
+  - netuid: 5   # kaito
+  # - netuid: 11   # dippy
+  # - netuid: 12   # horde
+  # - netuid: 13   # datavers
+  # - netuid: 14   # TAOhash
+  - netuid: 15   # d_V - biggest 14 holder has 300t of it -> https://taostats.io/account/5F4crUnjchQ5moWHe5Vq2QjMpBrp7YJUfg7xt6qpwZYc5k8H
+  # - netuid: 17   # 404
+  - netuid: 18   # zeus
   - netuid: 19   # nineteen
-  - netuid: 33   # readyAI
-  - netuid: 44   # score
-  - netuid: 51   # celium
+  # - netuid: 21   # omega any2any
+  - netuid: 24   # omega labs
+  - netuid: 27   # NIcompute
+  # - netuid: 33   # readyAI
+  # - netuid: 36   # webagents
+  # - netuid: 38   # dist training -> const saiys promising and will leverage it 
+  # - netuid: 44   # score
+  # - netuid: 51   # celium
+  - netuid: 54   # new owner - gamble! next taohas?!
+  - netuid: 55   # precog
   - netuid: 56   # gradients
+  # - netuid: 57   # gaia -> https://x.com/badenglishtea/status/1920485916940153304
+  # - netuid: 62   # agentao
   - netuid: 64   # chutes
   - netuid: 68   # nova
-  - netuid: 75   # hippius
-  - netuid: 85   # vidaio
+  # - netuid: 75   # hippius
+  # - netuid: 78   # unknown gamble 5t
+  # - netuid: 85   # vidaio
+  - netuid: 86   # MIAO
+  # - netuid: 96   # https://off.flock.io/
+  - netuid: 104   # gamble 1t - DCG group just bought subnet 104 Ben
+    threshold: 10
 
 subnets-org:
   # - netuid: 1   # apex
@@ -70,3 +109,7 @@ subnets-org:
   # - netuid: 76    # safe scan
   # - netuid: 81   # patrol
   
+
+
+# orange — 11/05/2025, 21:42
+# fish owned 14 and sold it to JJ, he then started to buy up 14 weeks before announcement in small increments to avoid detection, while this is going on he bought LOL 28 for cheap af bc former owner sold all his alpah and it was not as appealing to others to buy, once fish bought 28, he then fudded saying whoever buying this sn will get dumped on while he has been accumulating under his alt wallet, which is now #1 with close to 100k alpha. Fish is not selling this sn to NOBODY. he will build. this is all on chain and dates match. yall can check for yourself if you're not lazy to dig. btw creativebuild and lucian probably thinks the same as they've sorta kinda confirmed
