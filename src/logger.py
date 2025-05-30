@@ -48,10 +48,11 @@ def log_price_update(logger: logging.Logger, subnet_name: str, message: str, imp
         message: Price update message
         important: Whether to highlight the message
     """
+    truncated_name = subnet_name[:20]
     if important:
-        logger.info(f"{BOLD}{subnet_name:<20} {message}{RESET}")
+        logger.info(f"{BOLD}{truncated_name:<20} {message}{RESET}")
     else:
-        logger.info(f"{subnet_name:<20} {message}")
+        logger.info(f"{truncated_name:<20} {message}")
 
 def log_configuration(logger: logging.Logger, config: 'Config') -> None:
     """Log monitor configuration details.
