@@ -33,10 +33,10 @@ def format_price_message(price: float, change: Optional[float] = None, interval:
         if change != 0:
             color = GREEN if change > 0 else RED
             message += f" | {color}{change:+.6f}%{RESET} ({interval}s)"
+            if important:
+                message += " 🥕🐇" if change > 0 else " 👊"
         else:
             message += f" | {change:+.6f}% ({interval}s)"
-        if important:
-            message += " 🔔"
     return message
 
 def log_price_update(logger: logging.Logger, subnet_name: str, message: str, important: bool = False) -> None:
