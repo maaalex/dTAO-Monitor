@@ -33,10 +33,10 @@ def format_price_message(price: float, change: Optional[float] = None, interval:
         if change != 0:
             color = GREEN if change > 0 else RED
             message += f" | {color}{change:+.6f}%{RESET} ({interval}s)"
+            if important:
+                message += " 🥕🐇" if change > 0 else " 👊"
         else:
             message += f" | {change:+.6f}% ({interval}s)"
-        if important:
-            message += " 🔔"
     return message
 
 def log_price_update(logger: logging.Logger, subnet_name: str, message: str, important: bool = False) -> None:
@@ -74,10 +74,10 @@ def log_configuration(logger: logging.Logger, config: 'Config') -> None:
     if config.notification_url:
         logger.info(f"{BOLD}Notification URL:{RESET}        {config.notification_url}")
     # Alarm settings
-    logger.info(f"{BOLD}Price Drop Alarm:{RESET}        {'Yes' if config.alarm_enabled else 'No'}")
+    logger.info(f"{BOLD}Price Change Alarm:{RESET}      {'Yes' if config.alarm_enabled else 'No'}")
     if config.alarm_enabled:
         logger.info(f"{BOLD}Alarm Threshold:{RESET}         {config.alarm_threshold}%")
-        logger.info(f"{BOLD}Alarm Sound:{RESET}             {config.alarm_sound}")
+        logger.info(f"{BOLD}Alarm Sound:{RESET}             {config.alarm_sound_positive} (positive) / {config.alarm_sound_negative} (negative)")
         logger.info(f"{BOLD}Alarm Volume:{RESET}            {config.alarm_volume * 100}%")
     logger.info(f"{BOLD}Monitored Subnets:{RESET}")
     for subnet in config.subnets:

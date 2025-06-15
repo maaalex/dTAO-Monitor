@@ -1,0 +1,32 @@
+network: "finney"
+# network: "subvortex"
+interval: 300  # seconds
+threshold: .5  # default percent change
+
+# Alert settings
+alerts_on: false
+alert_positive: "assets/sounds/positive.mp3"
+alert_negative: "assets/sounds/negative.mp3"
+alert_volume: 1.  # 50% volume
+
+# Alarm settings
+alarm_enabled: true
+alarm_threshold: 5.0  # Trigger alarm at 3% change
+alarm_negative_only: true  # Whether to only trigger alarms for negative changes
+alarm_sound_positive: "assets/sounds/yeah.mp3"
+alarm_sound_negative: "assets/sounds/alarm.mp3"
+alarm_volume: 1.0  # 100% volume
+
+notification_url: "https://taostats.io/subnets/"
+
+# List of subnets to monitor
+subnets:
+  - netuid: 14   # TAOhash
+  # - netuid: 3   # templar
+  # - netuid: 19   # nineteen
+  # - netuid: 56   # gradients
+  # - netuid: 64   # chutes
+  # - netuid: 28   
+  - netuid: 12
+  # - netuid: 68   # nova6  
+  # - netuid: 21

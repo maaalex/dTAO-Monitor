@@ -13,7 +13,7 @@ from src.price_monitor import PriceMonitor
 def parse_args() -> argparse.Namespace:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description='Monitor TAO prices for specified subnets.')
-    parser.add_argument('--config', type=str, default='config.yaml',
+    parser.add_argument('--config', type=str, default='config/config.yaml',
                       help='Path to configuration file')
     return parser.parse_args()
 
