@@ -6,6 +6,7 @@ import bittensor as bt
 import threading
 
 from .config import Config, SubnetConfig
+from .notification_manager import NotificationManager
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,8 @@ class PriceAlarm:
         self.initial_prices: Dict[int, Optional[float]] = {}
         # Lock to prevent concurrent Subtensor API calls
         self.subtensor_lock = threading.Lock()
+        # Initialize notification manager
+        self.notification_manager = NotificationManager(config)
         # Initialize initial prices
         self._initialize_prices()
         
@@ -98,6 +101,16 @@ class PriceAlarm:
             price_change: Percentage price change
             is_negative: Whether the change is negative (price drop)
         """
+        # Send system notification
+        if self.config.notifications_on:
+            self.notification_manager.send_notification(
+                subnet_netid=subnet.netuid,
+                subnet_name=subnet.display_name,
+                price=self._fetch_subnet_info(subnet.netuid).price.tao,
+                change=price_change,
+                threshold=self.config.alarm_threshold
+            )
+        
         try:
             sound_file = self.config.alarm_sound_negative if is_negative else self.config.alarm_sound_positive
             if Path(sound_file).exists():
