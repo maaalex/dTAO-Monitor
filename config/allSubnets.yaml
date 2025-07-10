@@ -1,5 +1,5 @@
 network: "finney"
-interval: 60  # seconds
+interval: 300  # seconds
 threshold: .5  # default percent change
 log_threshold_only: true  # only log updates that exceed threshold
 
@@ -102,3 +102,44 @@ subnets:
   - netuid: 86
   - netuid: 87
   - netuid: 88
+  - netuid: 89
+  - netuid: 90
+  - netuid: 91
+  - netuid: 92
+  - netuid: 93
+  - netuid: 94
+  - netuid: 95
+  - netuid: 96
+  - netuid: 97
+  - netuid: 98
+  - netuid: 99
+  - netuid: 100
+  - netuid: 101
+  - netuid: 102
+  - netuid: 103
+  - netuid: 104
+  - netuid: 105
+  - netuid: 106
+  - netuid: 107
+  - netuid: 108
+  - netuid: 109
+  - netuid: 110
+  - netuid: 111
+  - netuid: 112
+  - netuid: 113
+  - netuid: 114
+  - netuid: 115
+  - netuid: 116
+  - netuid: 117
+  - netuid: 118
+  - netuid: 119
+  - netuid: 120
+  - netuid: 121
+  - netuid: 122
+  - netuid: 123
+  - netuid: 124
+  - netuid: 125
+  - netuid: 126
+  - netuid: 127
+  - netuid: 128
+
