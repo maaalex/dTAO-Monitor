@@ -64,6 +64,10 @@ class NotificationManager:
             args=(subnet_netid, subnet_name, price, change, threshold), 
             daemon=True
         ).start()
+        
+        # Speak subnet name using macOS text-to-speech
+        if platform.system() == 'Darwin' and self.config.notification_speak:
+            self._speak_subnet_name(subnet_name)
             
     def _send_notification_async(self, subnet_netid: int, subnet_name: str, price: float, change: float, threshold: float) -> None:
         """Send notification asynchronously to avoid blocking the main thread.
@@ -107,4 +111,49 @@ class NotificationManager:
                 logger.warning("Notifier not available, skipping notification")
             
         except Exception as e:
-            logger.error(f"Error sending notification: {e}", exc_info=True) 
+            logger.error(f"Error sending notification: {e}", exc_info=True)
+            
+    def _speak_subnet_name(self, subnet_name: str) -> None:
+        """Speak the subnet ID and name using macOS text-to-speech.
+        
+        Args:
+            subnet_name: Name of the subnet to speak (e.g., "62 (Ridges)")
+        """
+        try:
+            # Format for speech: "62 Ridges" from "62 (Ridges)"
+            if "(" in subnet_name and ")" in subnet_name:
+                # Extract ID and name: "62 (Ridges)" -> "62 Ridges"
+                parts = subnet_name.split("(")
+                subnet_id = parts[0].strip()
+                name_part = parts[1].split(")")[0].strip()
+                speech_text = f"{subnet_id} {name_part}"
+            else:
+                # Fallback to original name if format doesn't match
+                speech_text = subnet_name
+            
+            # Use macOS say command in background thread to avoid blocking
+            threading.Thread(
+                target=self._say_async,
+                args=(speech_text,),
+                daemon=True
+            ).start()
+            
+        except Exception as e:
+            logger.debug(f"Error preparing text-to-speech for {subnet_name}: {e}")
+            
+    def _say_async(self, text: str) -> None:
+        """Execute the say command asynchronously.
+        
+        Args:
+            text: Text to speak
+        """
+        try:
+            # Use the built-in macOS say command
+            subprocess.run(
+                ["say", text],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=5  # Prevent hanging
+            )
+        except Exception as e:
+            logger.debug(f"Error with text-to-speech: {e}") 

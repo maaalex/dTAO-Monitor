@@ -96,6 +96,7 @@ def log_configuration(logger: logging.Logger, config: 'Config') -> None:
     logger.info(f"{BOLD}Positive Alerts Only:{RESET}    {'Yes' if config.alerts_positive_only else 'No'}")
     logger.info(f"{BOLD}System Notifications:{RESET}    {'Yes' if config.notifications_on else 'No'}")
     logger.info(f"{BOLD}Notification Sound:{RESET}      {'Yes' if config.notification_sound else 'No'}")
+    logger.info(f"{BOLD}Text-to-Speech:{RESET}          {'Yes' if config.notification_speak else 'No'}")
     if config.notification_url:
         logger.info(f"{BOLD}Notification URL:{RESET}        {config.notification_url}")
     # Alarm settings

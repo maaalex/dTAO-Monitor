@@ -42,6 +42,7 @@ class Config:
     alerts_positive_only: bool = False  # Only trigger alerts for positive price changes
     notifications_on: bool = True  # Enable system notifications
     notification_sound: bool = True  # Play sound with notifications
+    notification_speak: bool = True  # Speak subnet names with text-to-speech
     notification_url: Optional[str] = None  # URL to open when notification is clicked
     # Alarm settings
     alarm_enabled: bool = False  # Whether to enable price drop alarm
@@ -99,6 +100,7 @@ class Config:
             alerts_positive_only=config_data.get('alerts_positive_only', False),  # Default to False if not specified
             notifications_on=config_data.get('notifications_on', True),  # Default to True if not specified
             notification_sound=config_data.get('notification_sound', True),  # Default to True if not specified
+            notification_speak=config_data.get('notification_speak', True),  # Default to True if not specified
             notification_url=config_data.get('notification_url'),  # Optional URL to open on click
             # Alarm settings
             alarm_enabled=config_data.get('alarm_enabled', False),

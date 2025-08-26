@@ -13,6 +13,7 @@
 ### Alerts
 - Sound alerts for significant price changes
 - System notifications (macOS only) linking to [taostats.io](https://taostats.io/) subnet pages
+- Text-to-speech subnet announcements with ID and name (macOS only, e.g., "62 Ridges")
 - Configurable alert sounds and volumes
 - Optional positive-only alerts
 
@@ -91,6 +92,11 @@ alert_positive: "sounds/yeah.mp3"
 alert_negative: "sounds/wtf.mp3"
 alert_volume: 0.5  # 0.0 to 1.0
 
+# Notification settings
+notifications_on: true  # Enable system notifications
+notification_sound: true  # Play sound with notifications
+notification_speak: true  # Speak subnet names (macOS only)
+
 # Price change alarm settings
 alarm_enabled: true  # Enable price change alarm
 alarm_threshold: 3.0  # Trigger alarm at 3% change
@@ -116,6 +122,9 @@ subnets:
 - **`alerts_on`**: Enables or disables alert sounds.
 - **`alert_positive` / `alert_negative`**: Audio alerts triggered based on monitoring results.
 - **`alert_volume`**: Volume level for sound alerts (0.0 to 1.0).
+- **`notifications_on`**: Enables or disables system notifications.
+- **`notification_sound`**: Enables or disables notification sounds.
+- **`notification_speak`**: Enables or disables text-to-speech subnet announcements (macOS only). Speaks "62 Ridges" format.
 - **`alarm_enabled`**: Enables or disables the price change alarm.
 - **`alarm_threshold`**: Percentage change from initial price to trigger alarm.
 - **`alarm_negative_only`**: Whether to only trigger alarms for negative changes.
