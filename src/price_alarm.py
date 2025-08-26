@@ -6,12 +6,15 @@ import bittensor as bt
 import threading
 
 from .config import Config, SubnetConfig
-from .notification_manager import NotificationManager
 
 logger = logging.getLogger(__name__)
 
 class PriceAlarm:
-    """Monitors TAO prices for significant changes from initial prices."""
+    """Monitors TAO prices for significant changes from initial prices.
+    
+    Note: This class only handles alarm sounds. System notifications and text-to-speech
+    are handled by PriceMonitor to avoid duplication and echo issues.
+    """
     
     def __init__(self, config: Config):
         """Initialize the price alarm.
@@ -29,8 +32,6 @@ class PriceAlarm:
         self.alarm_trigger_direction: Dict[int, Optional[bool]] = {}
         # Lock to prevent concurrent Subtensor API calls
         self.subtensor_lock = threading.Lock()
-        # Initialize notification manager
-        self.notification_manager = NotificationManager(config)
         # Initialize initial prices and alarm states
         self._initialize_prices()
         
@@ -152,15 +153,8 @@ class PriceAlarm:
             price_change: Percentage price change
             is_negative: Whether the change is negative (price drop)
         """
-        # Send system notification
-        if self.config.notifications_on:
-            self.notification_manager.send_notification(
-                subnet_netid=subnet.netuid,
-                subnet_name=subnet.display_name,
-                price=self._fetch_subnet_info(subnet.netuid).price.tao,
-                change=price_change,
-                threshold=self.config.alarm_threshold
-            )
+        # Note: System notifications are handled by PriceMonitor to avoid duplication
+        # PriceAlarm only handles alarm sounds
         
         # Play alarm sound in background thread to avoid blocking
         threading.Thread(target=self._play_alarm_sound_async, args=(is_negative,), daemon=True).start()
