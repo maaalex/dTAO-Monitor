@@ -23,15 +23,19 @@ class PriceAlarm:
         self.subtensor = bt.Subtensor(network=config.network)
         # Store initial prices for each subnet
         self.initial_prices: Dict[int, Optional[float]] = {}
+        # Track alarm states to ensure alarms trigger only once
+        self.alarm_triggered: Dict[int, bool] = {}
+        # Track the direction of the alarm trigger (True for positive, False for negative)
+        self.alarm_trigger_direction: Dict[int, Optional[bool]] = {}
         # Lock to prevent concurrent Subtensor API calls
         self.subtensor_lock = threading.Lock()
         # Initialize notification manager
         self.notification_manager = NotificationManager(config)
-        # Initialize initial prices
+        # Initialize initial prices and alarm states
         self._initialize_prices()
         
     def _initialize_prices(self) -> None:
-        """Initialize initial prices for all subnets."""
+        """Initialize initial prices and alarm states for all subnets."""
         if not self.config.alarm_enabled:
             return
             
@@ -40,9 +44,13 @@ class PriceAlarm:
             subnet_info = self._fetch_subnet_info(subnet.netuid)
             if subnet_info:
                 self.initial_prices[subnet.netuid] = subnet_info.price.tao
+                self.alarm_triggered[subnet.netuid] = False
+                self.alarm_trigger_direction[subnet.netuid] = None
                 logger.info(f"Initial price for subnet {subnet.netuid}: τ{subnet_info.price.tao:.6f}")
             else:
                 self.initial_prices[subnet.netuid] = None
+                self.alarm_triggered[subnet.netuid] = False
+                self.alarm_trigger_direction[subnet.netuid] = None
                 logger.warning(f"Could not initialize price for subnet {subnet.netuid}")
                 
     def _fetch_subnet_info(self, netuid: int) -> Optional[bt.SubnetInfo]:
@@ -81,17 +89,48 @@ class PriceAlarm:
         current_price = subnet_info.price.tao
         price_change = ((current_price - initial_price) / initial_price) * 100
         
+        # Check if alarm has already been triggered for this subnet
+        alarm_already_triggered = self.alarm_triggered.get(subnet.netuid, False)
+        
         # Check for significant price changes
-        if price_change <= -self.config.alarm_threshold:
-            # Price dropped significantly
+        if price_change <= -self.config.alarm_threshold and not alarm_already_triggered:
+            # Price dropped significantly and alarm not yet triggered
             logger.warning(f"ALARM: {subnet.display_name} price dropped {abs(price_change):.2f}% from initial price!")
             logger.warning(f"Initial: τ{initial_price:.6f} | Current: τ{current_price:.6f}")
             self._trigger_alarm(subnet, price_change, is_negative=True)
-        elif not self.config.alarm_negative_only and price_change >= self.config.alarm_threshold:
-            # Price increased significantly
+            # Mark alarm as triggered and update initial price to current price
+            self.alarm_triggered[subnet.netuid] = True
+            self.alarm_trigger_direction[subnet.netuid] = False  # Negative direction
+            self.initial_prices[subnet.netuid] = current_price
+            logger.info(f"Updated initial price for subnet {subnet.netuid} to current price: τ{current_price:.6f}")
+        elif not self.config.alarm_negative_only and price_change >= self.config.alarm_threshold and not alarm_already_triggered:
+            # Price increased significantly and alarm not yet triggered
             logger.warning(f"ALARM: {subnet.display_name} price increased {price_change:.2f}% from initial price!")
             logger.warning(f"Initial: τ{initial_price:.6f} | Current: τ{current_price:.6f}")
             self._trigger_alarm(subnet, price_change, is_negative=False)
+            # Mark alarm as triggered and update initial price to current price
+            self.alarm_triggered[subnet.netuid] = True
+            self.alarm_trigger_direction[subnet.netuid] = True  # Positive direction
+            self.initial_prices[subnet.netuid] = current_price
+            logger.info(f"Updated initial price for subnet {subnet.netuid} to current price: τ{current_price:.6f}")
+        elif alarm_already_triggered:
+            # Reset alarm state if price has moved significantly in the opposite direction
+            # This allows for future alarms to be triggered
+            recovery_threshold = self.config.alarm_threshold * 0.3  # Reset at 30% of threshold
+            trigger_direction = self.alarm_trigger_direction.get(subnet.netuid)
+            
+            if trigger_direction is False:  # Previous alarm was for negative change (price drop)
+                # Reset if price has recovered upward by the recovery threshold
+                if price_change >= recovery_threshold:
+                    self.alarm_triggered[subnet.netuid] = False
+                    self.alarm_trigger_direction[subnet.netuid] = None
+                    logger.info(f"Reset alarm state for subnet {subnet.netuid} - price recovered upward {price_change:.2f}%")
+            elif trigger_direction is True:  # Previous alarm was for positive change (price increase)
+                # Reset if price has dropped back down by the recovery threshold
+                if price_change <= -recovery_threshold:
+                    self.alarm_triggered[subnet.netuid] = False
+                    self.alarm_trigger_direction[subnet.netuid] = None
+                    logger.info(f"Reset alarm state for subnet {subnet.netuid} - price dropped back {price_change:.2f}%")
             
     def _trigger_alarm(self, subnet: SubnetConfig, price_change: float, is_negative: bool) -> None:
         """Trigger the alarm sound and notification.
@@ -124,6 +163,24 @@ class PriceAlarm:
         except Exception as e:
             logger.error(f"Error playing alarm sound: {e}")
             
+    def reset_alarm_state(self, netuid: int) -> None:
+        """Manually reset alarm state for a specific subnet.
+        
+        Args:
+            netuid: Subnet ID to reset alarm state for
+        """
+        if netuid in self.alarm_triggered:
+            self.alarm_triggered[netuid] = False
+            self.alarm_trigger_direction[netuid] = None
+            logger.info(f"Manually reset alarm state for subnet {netuid}")
+        
+    def reset_all_alarm_states(self) -> None:
+        """Reset alarm states for all subnets."""
+        for netuid in self.alarm_triggered:
+            self.alarm_triggered[netuid] = False
+            self.alarm_trigger_direction[netuid] = None
+        logger.info("Reset all alarm states")
+        
     def monitor_subnet(self, subnet: SubnetConfig) -> None:
         """Monitor a single subnet for price changes.
         
