@@ -32,6 +32,8 @@ class PriceMonitor:
         self.last_check_time: Dict[int, Optional[datetime]] = {
             subnet.netuid: None for subnet in config.subnets
         }
+        # Cache for subnet info to avoid redundant API calls
+        self.subnet_info_cache: Dict[int, Optional[bt.SubnetInfo]] = {}
         self.alert_manager = AlertManager(config)
         self.notification_manager = NotificationManager(config)
         self.price_alarm = PriceAlarm(config)  # Initialize price alarm
@@ -39,7 +41,7 @@ class PriceMonitor:
         self.subtensor_lock = threading.Lock()
         self._update_subnet_info()
         self._log_configuration()
-        # Thread pool for parallel subnet monitoring
+        # Persistent thread pool for parallel subnet monitoring
         self.executor = concurrent.futures.ThreadPoolExecutor(
             max_workers=min(len(config.subnets), 10)  # Limit max workers
         )
@@ -98,6 +100,9 @@ class PriceMonitor:
         if subnet_info is None:
             return
             
+        # Cache subnet info to share with price alarm (avoid duplicate API calls)
+        self.subnet_info_cache[subnet.netuid] = subnet_info
+        
         # Update subnet info for display name
         subnet.update_subnet_info(subnet_info)
         
@@ -135,11 +140,14 @@ class PriceMonitor:
         self.last_prices[subnet.netuid] = current_price
         self.last_check_time[subnet.netuid] = datetime.now()
         
-        # Check for significant price drops
-        self.price_alarm.monitor_subnet(subnet)
+        # Check for significant price drops using cached data
+        self.price_alarm.monitor_subnet_with_cache(subnet, subnet_info)
 
     def monitor_all_subnets(self) -> None:
-        """Monitor all subnets in parallel."""
+        """Monitor all subnets in parallel with optimized API usage."""
+        # Clear cache before new monitoring cycle
+        self.subnet_info_cache.clear()
+        
         # Submit all monitoring tasks to the thread pool
         futures = [
             self.executor.submit(self.monitor_subnet, subnet)

@@ -78,12 +78,24 @@ class PriceAlarm:
         if not self.config.alarm_enabled:
             return
             
-        initial_price = self.initial_prices.get(subnet.netuid)
-        if initial_price is None:
-            return
-            
         subnet_info = self._fetch_subnet_info(subnet.netuid)
         if subnet_info is None:
+            return
+            
+        self.check_price_change_with_cache(subnet, subnet_info)
+        
+    def check_price_change_with_cache(self, subnet: SubnetConfig, subnet_info: bt.SubnetInfo) -> None:
+        """Check if current price has changed significantly from initial price using cached data.
+        
+        Args:
+            subnet: Subnet configuration
+            subnet_info: Already fetched subnet information
+        """
+        if not self.config.alarm_enabled:
+            return
+            
+        initial_price = self.initial_prices.get(subnet.netuid)
+        if initial_price is None:
             return
             
         current_price = subnet_info.price.tao
@@ -150,11 +162,22 @@ class PriceAlarm:
                 threshold=self.config.alarm_threshold
             )
         
+        # Play alarm sound in background thread to avoid blocking
+        threading.Thread(target=self._play_alarm_sound_async, args=(is_negative,), daemon=True).start()
+            
+    def _play_alarm_sound_async(self, is_negative: bool) -> None:
+        """Play alarm sound asynchronously to avoid blocking the main thread.
+        
+        Args:
+            is_negative: Whether the change is negative (price drop)
+        """
         try:
             sound_file = self.config.alarm_sound_negative if is_negative else self.config.alarm_sound_positive
             if Path(sound_file).exists():
                 subprocess.run(
                     ["afplay", "-v", str(self.config.alarm_volume), sound_file],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
                     check=True
                 )
             else:
@@ -187,4 +210,13 @@ class PriceAlarm:
         Args:
             subnet: Subnet configuration
         """
-        self.check_price_change(subnet) 
+        self.check_price_change(subnet)
+        
+    def monitor_subnet_with_cache(self, subnet: SubnetConfig, subnet_info: bt.SubnetInfo) -> None:
+        """Monitor a single subnet for price changes using cached subnet info.
+        
+        Args:
+            subnet: Subnet configuration
+            subnet_info: Already fetched subnet information
+        """
+        self.check_price_change_with_cache(subnet, subnet_info) 

@@ -9,22 +9,23 @@ class SubnetConfig:
     """Configuration for a single subnet."""
     netuid: int
     threshold: float
-    _subnet_info: Optional[bt.SubnetInfo] = None
+    _subnet_name: Optional[str] = None
 
     @property
     def display_name(self) -> str:
-        """Get display name for the subnet using Bittensor subnet info."""
-        if self._subnet_info and self._subnet_info.subnet_name:
-            return f"{self.netuid} ({self._subnet_info.subnet_name})"
+        """Get display name for the subnet using cached subnet name."""
+        if self._subnet_name:
+            return f"{self.netuid} ({self._subnet_name})"
         return f"Subnet {self.netuid}"
 
     def update_subnet_info(self, subnet_info: Optional[bt.SubnetInfo]) -> None:
-        """Update subnet information.
+        """Update subnet information, caching only the name to reduce memory usage.
         
         Args:
             subnet_info: New subnet information from Bittensor
         """
-        self._subnet_info = subnet_info
+        if subnet_info and subnet_info.subnet_name:
+            self._subnet_name = subnet_info.subnet_name
 
 @dataclass
 class Config:
