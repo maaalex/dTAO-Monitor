@@ -2,8 +2,6 @@
 
 **dTAO Monitor** is a tool for monitoring Bittensor's subnet token prices, providing real-time insights and configurable tracking with optional alert sounds 🔔
 
-![Screenshot](assets/screens/screenshot_2.png)
-
 ## Features
 
 ### Price Monitoring
