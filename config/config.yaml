@@ -1,6 +1,6 @@
 network: "finney"
 # network: "subvortex"
-interval: 15  # seconds
+interval: 30  # seconds
 threshold: .25  # default percent change
 
 # Alert settings
@@ -10,7 +10,7 @@ alert_negative: "assets/sounds/negative.mp3"
 alert_volume: .1  # 50% volume
 
 # Alarm settings
-alarm_enabled: true
+alarm_enabled: false
 alarm_threshold: 5.  # Trigger alarm at 3% change
 alarm_negative_only: false  # Whether to only trigger alarms for negative changes
 alarm_sound_positive: "assets/sounds/yeah.mp3"
@@ -43,9 +43,10 @@ subnets:
 - netuid: 44   # score
 # - netuid: 56   # gradients
 - netuid: 57   # gaia -> https://x.com/badenglishtea/status/1920485916940153304
-- netuid: 64   # chutes
+- netuid: 62   # ridgesAI
+# - netuid: 64   # chutes
 - netuid: 68   # nova
-# - netuid: 75   # hippius
+- netuid: 75   # hippius
 # - netuid: 85   # vidaio
 
 subnets-old:
