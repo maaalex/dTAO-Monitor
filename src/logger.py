@@ -1,5 +1,8 @@
 import logging
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .config import Config
 
 # ANSI color codes
 RED = "\033[91m"
@@ -7,13 +10,35 @@ GREEN = "\033[92m"
 BOLD = "\033[1m"
 RESET = "\033[0m"
 
+class CustomFormatter(logging.Formatter):
+    """Custom formatter to remove 'INFO -' from normal messages but keep it for warnings/errors."""
+    
+    def format(self, record):
+        if record.levelno == logging.INFO:
+            # For INFO messages, only show timestamp and message
+            return f"{self.formatTime(record, self.datefmt)} - {record.getMessage()}"
+        else:
+            # For WARNING, ERROR, etc., include the level name
+            return f"{self.formatTime(record, self.datefmt)} - {record.levelname} - {record.getMessage()}"
+
 def setup_logger() -> logging.Logger:
     """Configure and return a logger instance."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
+    # Get the root logger
+    root_logger = logging.getLogger()
+    
+    # Remove any existing handlers
+    for handler in root_logger.handlers[:]:
+        root_logger.removeHandler(handler)
+    
+    # Create console handler with custom formatter
+    console_handler = logging.StreamHandler()
+    formatter = CustomFormatter(datefmt='%Y-%m-%d %H:%M:%S')
+    console_handler.setFormatter(formatter)
+    
+    # Configure root logger
+    root_logger.setLevel(logging.INFO)
+    root_logger.addHandler(console_handler)
+    
     return logging.getLogger(__name__)
 
 def format_price_message(price: float, change: Optional[float] = None, interval: int = 0, important: bool = False) -> str:
