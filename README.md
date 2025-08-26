@@ -25,6 +25,11 @@
 - Option to only trigger alarms for negative changes
 - Initial prices are recorded when the monitor starts
 
+#### Alarm Reset Logic
+- **One-time triggering**: Alarms trigger only once per significant price movement to prevent spam
+- **Automatic reset**: Alarm state resets when price recovers in the opposite direction by 30% of the threshold
+- **Baseline update**: When an alarm triggers, the initial price baseline is updated to the current price
+
 ## Project Structure
 
 ```
